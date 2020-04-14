@@ -67,14 +67,14 @@ public class CrimeListFragment extends Fragment {
 
         @NonNull
         @Override
-        public CrimeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public CrimeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {        //Создаёт представления заполняющие экран
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());                 //getActivity() - Вернуть активность, с которой в данный момент связан этот фрагмент.
 
             return new CrimeHolder(layoutInflater, parent);                                     //Обращение к CrimeHolder для заполнения фрагмента
         }
 
         @Override
-        public void onBindViewHolder( CrimeHolder holder, int position) {
+        public void onBindViewHolder( CrimeHolder holder, int position) {                       //Запоняет перезаписывается ушедшее представление и появляется с новой записью с другой стороны. (Перезаписывает представления)
             Crime crime = mCrimes.get(position);
             holder.bind(crime);
         }
