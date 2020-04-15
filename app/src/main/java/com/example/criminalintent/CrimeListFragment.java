@@ -43,8 +43,8 @@ public class CrimeListFragment extends Fragment {
         private TextView mTitleTextView;
         private TextView mDateTextView;
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent){
-            super(inflater.inflate(R.layout.list_item_crime, parent, false));                   //inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
+        public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int viewType){
+            super(inflater.inflate(viewType, parent, false));                   //inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
 
             itemView.setOnClickListener(this);                                                  //Эта строчка (место где происходит нажатие) и implements View.OnClickListener нужны для обработки нажатия на представление
 
@@ -72,25 +72,33 @@ public class CrimeListFragment extends Fragment {
             mCrimes = crimes;
         }
 
-
         @NonNull
         @Override
         public CrimeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {        //Создаёт представления заполняющие экран
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());                 //getActivity() - Вернуть активность, с которой в данный момент связан этот фрагмент.
 
-            return new CrimeHolder(layoutInflater, parent);                                     //Обращение к CrimeHolder для заполнения фрагмента
+            return new CrimeHolder(layoutInflater, parent, viewType);                                     //Обращение к CrimeHolder для заполнения фрагмента
         }
 
         @Override
         public void onBindViewHolder( CrimeHolder holder, int position) {                       //Запоняет перезаписывается ушедшее представление и появляется с новой записью с другой стороны. (Перезаписывает представления)
             Crime crime = mCrimes.get(position);
             holder.bind(crime);
+            Log.d(TEG, "getItemViewType = " + getItemViewType(position));
         }
 
         @Override
         public int getItemCount() {
-            Log.d(TEG, "getItemCount - "+mCrimes.size());
             return mCrimes.size();                                                              //size - используется для получения количества элементов в этом списке
+        }
+
+        @Override
+        public int getItemViewType(int position){                                               //Переназначает номер представленя с position на то что выдачт return
+            if(mCrimes.get(position).getRequiresPolice()) {
+                return R.layout.list_item_crime;
+            } else {
+                return R.layout.list_item_serious_crime;
+            }
         }
     }
 
@@ -99,6 +107,5 @@ public class CrimeListFragment extends Fragment {
         List<Crime> crimes = crimeLab.getCrimes();
         mAdapter = new CrimeAdapter(crimes);                                                    //Здесь заполняется список RecyclerView, с помощью метода onCreateViewHolder. В данном случаи RecyclerView заполняется crimes. CrimeAdapter - класс наследник RecyclerView
         mCrimeRecyclerView.setAdapter(mAdapter);                                                //Добовляет адаптер. Адаптеры упрощают связывание данных с элементом управления. Помещаем mAdapter в mCrimeRecyclerView
-        Log.d(TEG, "updateUI - " + crimes.size());
     }
 }
