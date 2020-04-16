@@ -16,7 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class CrimeListFragment extends Fragment {
 
@@ -57,8 +60,11 @@ public class CrimeListFragment extends Fragment {
 
         public void bind(Crime crime){
             mCrime = crime;
+
+            DateFormat df = new SimpleDateFormat("EEEE, MMM dd, yyyy", Locale.ENGLISH);     //Меняем формат даты на Friday, Jul 22, 2016
+
             mTitleTextView.setText(mCrime.getTitle());
-            mDateTextView.setText(mCrime.getDate().toString());
+            mDateTextView.setText(df.format(mCrime.getDate()));
             mSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.GONE);        //VISIBLE - ВИДИМЫЙ. GONE - УШЕДШИЙ
         }
 
