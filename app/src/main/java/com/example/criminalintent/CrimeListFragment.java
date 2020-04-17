@@ -2,6 +2,7 @@
 
 package com.example.criminalintent;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,15 +42,15 @@ public class CrimeListFragment extends Fragment {
         return view;
     }
 
-    private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {                                             //Запоняет предствавление фрагмента.
+    private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {         //Запоняет предствавление фрагмента. Holder - обладатель
 
         private Crime mCrime;
         private TextView mTitleTextView;
         private TextView mDateTextView;
         private ImageView mSolvedImageView;
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int viewType){
-            super(inflater.inflate(viewType, parent, false));                   //inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
+        public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int viewType){            //Явно заполняем представление фрагмента
+            super(inflater.inflate(viewType, parent, false));                       //inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
 
             itemView.setOnClickListener(this);                                                  //Эта строчка (место где происходит нажатие) и implements View.OnClickListener нужны для обработки нажатия на представление
 
@@ -58,7 +59,7 @@ public class CrimeListFragment extends Fragment {
             mSolvedImageView = itemView.findViewById(R.id.crime_solved);
         }
 
-        public void bind(Crime crime){
+        public void bind(Crime crime){                                                          //Добовляет view в представление
             mCrime = crime;
 
             DateFormat df = new SimpleDateFormat("EEEE, MMM dd, yyyy", Locale.ENGLISH);     //Меняем формат даты на Friday, Jul 22, 2016
@@ -70,7 +71,9 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View view){
-            Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();          //Активирует всплывающее окно Toast.makeText(куда помещаем, текст сообщения, время в течении которого будет отображение сообщения)
+//          Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();          //Активирует всплывающее окно Toast.makeText(куда помещаем, текст сообщения, время в течении которого будет отображение сообщения)
+            Intent intent = MainActivity.newIntent(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность MainActivity, передаёт Id преступления.
+            startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
         }
     }
 
@@ -91,7 +94,7 @@ public class CrimeListFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder( CrimeHolder holder, int position) {                       //Запоняет перезаписывается ушедшее представление и появляется с новой записью с другой стороны. (Перезаписывает представления)
+        public void onBindViewHolder( CrimeHolder holder, int position) {                       //Заполняет, перезаписывается ушедшее представление и появляется с новой записью с другой стороны. (Перезаписывает представления)
             Crime crime = mCrimes.get(position);
             holder.bind(crime);
             Log.d(TEG, "getItemViewType = " + getItemViewType(position));
