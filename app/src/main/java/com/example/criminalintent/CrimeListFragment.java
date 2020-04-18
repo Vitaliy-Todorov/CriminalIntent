@@ -1,4 +1,4 @@
-//Запоняем фрагмент
+//Заполяем фрагмент
 
 package com.example.criminalintent;
 
@@ -97,7 +97,6 @@ public class CrimeListFragment extends Fragment {
         public void onBindViewHolder( CrimeHolder holder, int position) {                       //Заполняет, перезаписывается ушедшее представление и появляется с новой записью с другой стороны. (Перезаписывает представления)
             Crime crime = mCrimes.get(position);
             holder.bind(crime);
-            Log.d(TEG, "getItemViewType = " + getItemViewType(position));
         }
 
         @Override
