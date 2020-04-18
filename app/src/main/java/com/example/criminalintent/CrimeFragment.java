@@ -43,6 +43,7 @@ public class CrimeFragment extends Fragment {
 
         mDateButton.setText(mCrime.getDate().toString());
 
+        mTitleField.setText(mCrime.getTitle());
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -62,6 +63,7 @@ public class CrimeFragment extends Fragment {
 
         mDateButton.setEnabled(false);                                                          //Блокировка кнопки
 
+        mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
