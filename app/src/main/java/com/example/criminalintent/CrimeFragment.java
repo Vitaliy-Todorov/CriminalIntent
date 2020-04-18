@@ -21,6 +21,8 @@ import static android.widget.CompoundButton.*;
 
 public class CrimeFragment extends Fragment {
 
+    private static final String ARG_CRIME_ID = "crime_id";
+
     private Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
@@ -29,7 +31,8 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        UUID crimeID = (UUID) getActivity().getIntent().getSerializableExtra(MainActivity.EXTRA_CRIME_ID);          //Получаем UUID из Intent
+        //UUID crimeID = (UUID) getActivity().getIntent().getSerializableExtra(MainActivity.EXTRA_CRIME_ID);          //Это всё служет для передачи данных между активностями, в отличик от реализованной передаче межуд фрагментами.
+        UUID crimeID = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeID);
     }
 
@@ -71,5 +74,14 @@ public class CrimeFragment extends Fragment {
             }
         });
         return v;
+    }
+
+    public static CrimeFragment newInstance(UUID crimeId){                                      //Передаёт crimeId во фрагмент, в данном случаи из MainActivity
+        Bundle args = new Bundle();                                                             //Аналог Intent только если интент применяется для передачи данных между активнастями, то Bundle служет для передачи данных между фрагментами.
+        args.putSerializable(ARG_CRIME_ID, crimeId);                                            //Добовляем crimeId в Bundle
+
+        CrimeFragment fragment = new CrimeFragment();
+        fragment.setArguments(args);                                                            //добавляем Bundle во фрагмент.
+        return fragment;
     }
 }
