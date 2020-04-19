@@ -29,9 +29,15 @@ public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
 
+    private int mClickPosition = -1;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
+
+        if(saveInstanceState != null) {
+            mClickPosition = saveInstanceState.getInt("click position", 0);
+        }
 
         mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
 
@@ -49,7 +55,7 @@ public class CrimeListFragment extends Fragment {
         private TextView mDateTextView;
         private ImageView mSolvedImageView;
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int viewType){            //Явно заполняем представление фрагмента
+        public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int viewType){            //Явно заполняем представление фрагмента. После изменения getItemViewType, viewType передаёт адрес XML макета который надо возвращать
             super(inflater.inflate(viewType, parent, false));                       //inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
 
             itemView.setOnClickListener(this);                                                  //Эта строчка (место где происходит нажатие) и implements View.OnClickListener нужны для обработки нажатия на представление
@@ -72,6 +78,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View view){
 //          Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();          //Активирует всплывающее окно Toast.makeText(куда помещаем, текст сообщения, время в течении которого будет отображение сообщения)
+            mClickPosition = this.getAdapterPosition();
             Intent intent = MainActivity.newIntent(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность MainActivity, передаёт Id преступления.
             startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
         }
@@ -114,12 +121,6 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        updateUI();
-    }
-
     private void updateUI(){
         CrimeLab crimeLab = CrimeLab.get(getActivity());                                        //Эта и следующая строчка служать для создания списка приступлений crimes
         List<Crime> crimes = crimeLab.getCrimes();
@@ -127,7 +128,24 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);                                                    //Здесь заполняется список RecyclerView, с помощью метода onCreateViewHolder. В данном случаи RecyclerView заполняется crimes. CrimeAdapter - класс наследник RecyclerView
             mCrimeRecyclerView.setAdapter(mAdapter);                                                //Добовляет адаптер. Адаптеры упрощают связывание данных с элементом управления. Помещаем mAdapter в mCrimeRecyclerView
         } else {
-            mAdapter.notifyDataSetChanged();                                                    //notifyDataSetChanged приказать RecyclerView перезагрузить все элементы, видимые в настоящее время.. В данном случаи используется для того, что бы при возвращение с предыдущего окна данные обновились, в противном случаи они остануться те ми же, что до именения.
+            if(mClickPosition >= 0){
+                mAdapter.notifyItemChanged(mClickPosition);                                     //Обновляет конкретное представление в RecyclerView
+            }else {
+                mAdapter.notifyDataSetChanged();                                                    //notifyDataSetChanged приказать RecyclerView перезагрузить все элементы, видимые в настоящее время.. В данном случаи используется для того, что бы при возвращение с предыдущего окна данные обновились, в противном случаи они остануться те ми же, что до именения.
+            }
         }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        updateUI();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedIntendState){
+        super.onSaveInstanceState(savedIntendState);
+
+        savedIntendState.putInt("click position", mClickPosition);
     }
 }
