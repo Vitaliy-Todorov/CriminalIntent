@@ -79,7 +79,7 @@ public class CrimeListFragment extends Fragment {
         public void onClick(View view){
 //          Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();          //Активирует всплывающее окно Toast.makeText(куда помещаем, текст сообщения, время в течении которого будет отображение сообщения)
             mClickPosition = this.getAdapterPosition();
-            Intent intent = MainActivity.newIntent(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность MainActivity, передаёт Id преступления.
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность CrimePagerActivity, передаёт Id преступления.
             startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
         }
     }
