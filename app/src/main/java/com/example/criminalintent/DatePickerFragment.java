@@ -18,15 +18,6 @@ public class DatePickerFragment extends DialogFragment {                        
 
     private DatePicker mDatePicker;
 
-    public static DatePickerFragment newInstance(Date date) {
-        Bundle args = new Bundle();                                                             //Аналог Intent только если интент применяется для передачи данных между активнастями, то Bundle служет для передачи данных между фрагментами.
-        args.putSerializable(ARG_DATE, date);                                                   //Добовляем crimeId в Bundle
-
-        DatePickerFragment fragment = new DatePickerFragment();
-        fragment.setArguments(args);                                                            //добавляем Bundle во фрагмент.
-        return fragment;
-    }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
 
@@ -48,5 +39,14 @@ public class DatePickerFragment extends DialogFragment {                        
                 .setTitle(R.string.date_picker_title)
                 .setPositiveButton(android.R.string.ok, null)
                 .create();
+    }
+
+    public static DatePickerFragment newInstance(Date date) {
+        Bundle args = new Bundle();                                                             //Аналог Intent только если интент применяется для передачи данных между активнастями, то Bundle служет для передачи данных между фрагментами.
+        args.putSerializable(ARG_DATE, date);                                                   //Добовляем crimeId в Bundle
+
+        DatePickerFragment fragment = new DatePickerFragment();
+        fragment.setArguments(args);                                                            //добавляем Bundle во фрагмент.
+        return fragment;
     }
 }
