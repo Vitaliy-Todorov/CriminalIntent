@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,15 +13,18 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import android.view.View.OnClickListener;
 
 import java.util.List;
 import java.util.UUID;
 
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends AppCompatActivity implements OnClickListener {
 
     private static final String TEG = "myLogs";
     private static final String EXTRA_CRIME_ID = "com.example.criminalintent.crime_id";
 
+    private Button mBtnNext;
+    private Button mBtnPrev;
     private ViewPager mViewPager;
     private List<Crime> mCrimes;
 
@@ -31,7 +36,10 @@ public class CrimePagerActivity extends AppCompatActivity {
         UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
 
         mViewPager = findViewById(R.id.crime_view_pager);                                       //поиск ViewPager в представлении активности
+        mBtnNext = findViewById(R.id.next_button);
+        mBtnPrev = findViewById(R.id.prev_button);
 
+        //Листаем страници
         mCrimes = CrimeLab.get(this).getCrimes();                                               //мы получаем от CrimeLab набор данных
         FragmentManager fragmentManager = getSupportFragmentManager();                          //получаем экземпляр FragmentManager для активности. Для управления фрагментами
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fragmentManager,                    //FragmentStatePagerAdapter — ваш агент, управляющий взаимодействием с ViewPager. Что именно делает агент? Вкратце, он добавляет возвращаемые фрагменты в активность и помогает ViewPager идентифицировать представления фрагментов для их правильного размещения.
@@ -48,12 +56,28 @@ public class CrimePagerActivity extends AppCompatActivity {
                 return mCrimes.size();
             }
         });
+        //Листаем страници
+
+        mBtnNext.setOnClickListener(this);
+        mBtnPrev.setOnClickListener(this);
 
         for (int i = 0; i < mCrimes.size(); i++){
             if (mCrimes.get(i).getId().equals(crimeId)){
                 mViewPager.setCurrentItem(i);                                                   //setCurrentItem - измените текущий элемент (отображаемый в ViewPager) по индексу найденного объекта
                 break;
             }
+        }
+    }
+
+    @Override
+    public void onClick(View view){
+        switch (view.getId()){
+            case R.id.next_button:
+                mViewPager.setCurrentItem(mCrimes.size());
+                break;
+            case R.id.prev_button:
+                mViewPager.setCurrentItem(0);
+                break;
         }
     }
 
