@@ -7,4 +7,6 @@
     <string name="crime_solved_label">Solved</string>
 
     <string name="call_police">Call the police!</string>
+    
+    <string name="date_picker_title">Date of crime:</string>
 </resources>

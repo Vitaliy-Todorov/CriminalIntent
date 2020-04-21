@@ -14,6 +14,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import java.util.UUID;
 
@@ -22,6 +23,7 @@ import static android.widget.CompoundButton.*;
 public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
+    private static final String DIALOG_DATE = "DialogDate";
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -38,7 +40,7 @@ public class CrimeFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){              //заплняет макет (View)
-        View v = inflater.inflate(R.layout.fragment_crime, container, false);           //inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
+        View v = inflater.inflate(R.layout.fragment_crime, container, false);           //LayoutInflater – это класс, который умеет из содержимого layout-файла создать View-элемент. Метод который это делает называется inflate. inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
 
         mTitleField = v.findViewById(R.id.crime_title);
         mDateButton = v.findViewById(R.id.crime_date);
@@ -64,7 +66,15 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        mDateButton.setEnabled(false);                                                          //Блокировка кнопки
+        //mDateButton.setEnabled(false);                                                          //Блокировка кнопки
+        mDateButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                FragmentManager manager = getFragmentManager();
+                DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
+                dialog.show(manager, DIALOG_DATE);                                              //добавлет экземпляра DialogFragment в FragmentManager и вывода его на экран (выводит всплывающее окно на экран)
+            }
+        });
 
         mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
