@@ -5,6 +5,9 @@ import java.util.UUID;
 
 public class Crime {
 
+    public static final int HOUR = 10;
+    public static final int MINUTE = 12;
+
     private UUID mId;
     private String mTitle;
     private Date mDate;

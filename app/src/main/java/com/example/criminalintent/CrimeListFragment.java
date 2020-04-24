@@ -61,14 +61,14 @@ public class CrimeListFragment extends Fragment {
             itemView.setOnClickListener(this);                                                  //Эта строчка (место где происходит нажатие) и implements View.OnClickListener нужны для обработки нажатия на представление
 
             mTitleTextView = itemView.findViewById(R.id.crime_title);
-            mDateTextView = itemView.findViewById(R.id.crime_date);
+            mDateTextView = itemView.findViewById(R.id.crime_date_list);
             mSolvedImageView = itemView.findViewById(R.id.crime_solved);
         }
 
         public void bind(Crime crime){                                                          //Добовляет view в представление
             mCrime = crime;
 
-            DateFormat df = new SimpleDateFormat("EEEE, MMM dd, yyyy", Locale.ENGLISH);     //Меняем формат даты на Friday, Jul 22, 2016
+            DateFormat df = new SimpleDateFormat("EEEE, MMM dd, yyyy, HH:mm", Locale.ENGLISH);     //Меняем формат даты на Friday, Jul 22, 2016
 
             mTitleTextView.setText(mCrime.getTitle());
             mDateTextView.setText(df.format(mCrime.getDate()));

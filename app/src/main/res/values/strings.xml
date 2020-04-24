@@ -9,4 +9,5 @@
     <string name="call_police">Call the police!</string>
     
     <string name="date_picker_title">Date of crime:</string>
+    <string name="time_picker_title">Time of crime:</string>
 </resources>

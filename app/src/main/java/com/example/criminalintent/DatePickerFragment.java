@@ -17,6 +17,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+//ст 260 Дочерняя активность будет запускаться вызовом startActivityForResult() из фрагмента родительской активности. При уничтожении дочерней активности родительская активность будет получать вызов onActivityResult(…), который будет перенаправляться фрагменту, запустившему дочернюю активность
+
 public class DatePickerFragment extends DialogFragment {                                        //объекта AlertDialog обычно удобно упаковать его в экземпляр DialogFragment — субкласса Fragment
 
     private static final String TEG = "myLogs";
