@@ -2,10 +2,14 @@
 
 package com.example.criminalintent;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +35,12 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter mAdapter;
 
     private int mClickPosition = -1;
+
+    @Override
+    public  void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);                                                                //активировать меню. А точнее говорит FragmentManager о том, что но должен получить onCreateOptionsMenu(…)
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
@@ -140,6 +151,37 @@ public class CrimeListFragment extends Fragment {
     public void onResume(){
         super.onResume();
         updateUI();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {                         //В этом методе мы вызываем метод MenuInflater.inflate(int, Menu) и передаем идентификатор ресурса своего файла меню. Вызов заполняет экземпляр Menu командами, определенными в файле.
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime_list, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {                                       //обрабатывает нажатие на кнопку меню R.id.new_crime
+        switch (item.getItemId()) {
+            case R.id.new_crime:
+                Crime crime = new Crime();
+                CrimeLab.get(getActivity()).addCrime(crime);
+                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                startActivity(intent);
+                return true;
+            case R.id.show_subtitle:
+                updateSubtitle();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void updateSubtitle() {
+        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        int crimeCount = crimeLab.getCrimes().size();
+        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();                         //AppCompatActivity - Базовый класс для фктивности, использующих функции панели действий ст 216 (панель инструментов в библиотеки AppCompat называется «панелью действий»)
+        activity.getSupportActionBar().setSubtitle(subtitle);                                   //(панель инструментов в библиотеки AppCompat называется «панелью действий») getSupportActionBar - выдаёт ActionBar. ActionBar - Основная панель инструментов в действий, которая может отображать заголовок действия, возможности навигации на уровне приложения и другие интерактивные элементы. setSubtitle - запаолняет ActionBar
     }
 
     @Override
