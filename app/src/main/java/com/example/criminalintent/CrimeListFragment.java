@@ -30,10 +30,13 @@ import java.util.Locale;
 public class CrimeListFragment extends Fragment {
 
     private static final String TEG = "myLogs";
+    private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
+
+    private static List<Crime> mCrimes;
 
     private int mClickPosition = -1;
 
@@ -45,6 +48,11 @@ public class CrimeListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
+
+        if(saveInstanceState != null){
+            mSubtitleVisible = saveInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+        }
+
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
 
         if(saveInstanceState != null) {
@@ -98,8 +106,6 @@ public class CrimeListFragment extends Fragment {
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder>{
 
-        private List<Crime> mCrimes;
-
         public CrimeAdapter(List<Crime> crimes){                                                //Конструктор класса
             mCrimes = crimes;
         }
@@ -133,11 +139,11 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    private void updateUI(){
+    private void updateUI(){                                                                    //Обновляет элементы CrimeListFragment
         CrimeLab crimeLab = CrimeLab.get(getActivity());                                        //Эта и следующая строчка служать для создания списка приступлений crimes
-        List<Crime> crimes = crimeLab.getCrimes();
+        mCrimes = crimeLab.getCrimes();
         if (mAdapter == null) {
-            mAdapter = new CrimeAdapter(crimes);                                                    //Здесь заполняется список RecyclerView, с помощью метода onCreateViewHolder. В данном случаи RecyclerView заполняется crimes. CrimeAdapter - класс наследник RecyclerView
+            mAdapter = new CrimeAdapter(mCrimes);                                                    //Здесь заполняется список RecyclerView, с помощью метода onCreateViewHolder. В данном случаи RecyclerView заполняется crimes. CrimeAdapter - класс наследник RecyclerView
             mCrimeRecyclerView.setAdapter(mAdapter);                                                //Добовляет адаптер. Адаптеры упрощают связывание данных с элементом управления. Помещаем mAdapter в mCrimeRecyclerView
         } else {
             if(mClickPosition >= 0){
@@ -146,12 +152,22 @@ public class CrimeListFragment extends Fragment {
                 mAdapter.notifyDataSetChanged();                                                    //notifyDataSetChanged приказать RecyclerView перезагрузить все элементы, видимые в настоящее время.. В данном случаи используется для того, что бы при возвращение с предыдущего окна данные обновились, в противном случаи они остануться те ми же, что до именения.
             }
         }
+
+        updateSubtitle();
     }
 
     @Override
     public void onResume(){
         super.onResume();
         updateUI();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedIntendState){
+        super.onSaveInstanceState(savedIntendState);
+
+        savedIntendState.putInt("click position", mClickPosition);
+        savedIntendState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible);
     }
 
     @Override
@@ -168,7 +184,7 @@ public class CrimeListFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {                                       //обрабатывает нажатие на кнопку меню R.id.new_crime
+    public boolean onOptionsItemSelected(MenuItem item) {                                       //обрабатывает нажатие кнопки на панель инструментов
         switch (item.getItemId()) {
             case R.id.new_crime:
                 Crime crime = new Crime();
@@ -186,7 +202,7 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    private void updateSubtitle() {
+    private void updateSubtitle() {                                                             //запаолняет ActionBar
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
         String subtitle = getString(R.string.subtitle_format, crimeCount);
@@ -197,12 +213,5 @@ public class CrimeListFragment extends Fragment {
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();                         //AppCompatActivity - Базовый класс для фктивности, использующих функции панели действий ст 216 (панель инструментов в библиотеки AppCompat называется «панелью действий»)
         activity.getSupportActionBar().setSubtitle(subtitle);                                   //(панель инструментов в библиотеки AppCompat называется «панелью действий») getSupportActionBar - выдаёт ActionBar. ActionBar - Основная панель инструментов в действий, которая может отображать заголовок действия, возможности навигации на уровне приложения и другие интерактивные элементы. setSubtitle - запаолняет ActionBar
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedIntendState){
-        super.onSaveInstanceState(savedIntendState);
-
-        savedIntendState.putInt("click position", mClickPosition);
     }
 }
