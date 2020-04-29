@@ -149,6 +149,8 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.delete_crime:
+                CrimeLab.get(getActivity()).deleteCrime(mCrime.getId());
+                getActivity().finish();
                 return true;
             default:
                 super.onOptionsItemSelected(item);

@@ -25,6 +25,10 @@ public class CrimeLab {
         mCrimes.put(crime.getId(), crime);
     }
 
+    public void deleteCrime(UUID id) {
+        mCrimes.remove(id);
+    }
+
     public static CrimeLab get(Context context){
         if (sCrimeLab == null){
             sCrimeLab = new CrimeLab(context);
