@@ -12,7 +12,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,12 +35,14 @@ public class CrimeListFragment extends Fragment {
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
     private static final String CLICK_POSITION = "com.example.criminalintent.CrimeListFragment";
 
-    private RecyclerView mCrimeRecyclerView;
+    private RecyclerView mCrimeRecyclerView;                                                    //В нём создаётся прокручиваемый список
     private CrimeAdapter mAdapter;
+    private LinearLayout mNoCrimeLL;
+    private Button mNewCrimeBtn;
+
+    private static List<Crime> mCrimes = new ArrayList<>();
+
     private boolean mSubtitleVisible;
-
-    private static List<Crime> mCrimes;
-
     private int mClickPosition = -1;
 
     @Override
@@ -56,7 +61,19 @@ public class CrimeListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
 
+        mNoCrimeLL = view.findViewById(R.id.no_crimeLL);
+        mNewCrimeBtn = view.findViewById(R.id.new_crimeBtn);
         mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
+
+        mNewCrimeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Crime crime = new Crime();
+                CrimeLab.get(getActivity()).addCrime(crime);
+                Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), crime.getId());
+                startActivity(intent);
+            }
+        });
 
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));            //виджету RecyclerView назначается другой объект LayoutManager. Объект LayoutManager управляет позиционированием элементов, а также определяет поведение прокрутки. при отсутствии LayoutManager виджет RecyclerView просто погибнет в тщетной попытке что-нибудь сделать.
 
@@ -204,6 +221,11 @@ public class CrimeListFragment extends Fragment {
     private void updateUI(){                                                                    //Обновляет элементы CrimeListFragment
         CrimeLab crimeLab = CrimeLab.get(getActivity());                                        //Эта и следующая строчка служать для создания списка приступлений crimes
         mCrimes = crimeLab.getCrimes();
+
+        if(mCrimes.size() != 0) {
+            mNoCrimeLL.setVisibility(View.INVISIBLE);                                           //Скрывает представлеие
+        }
+
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(mCrimes);                                                    //Здесь заполняется список RecyclerView, с помощью метода onCreateViewHolder. В данном случаи RecyclerView заполняется crimes. CrimeAdapter - класс наследник RecyclerView
             mCrimeRecyclerView.setAdapter(mAdapter);                                                //Добовляет адаптер. Адаптеры упрощают связывание данных с элементом управления. Помещаем mAdapter в mCrimeRecyclerView
@@ -213,10 +235,6 @@ public class CrimeListFragment extends Fragment {
             }else {
                 mAdapter.notifyDataSetChanged();                                                    //notifyDataSetChanged приказать RecyclerView перезагрузить все элементы, видимые в настоящее время.. В данном случаи используется для того, что бы при возвращение с предыдущего окна данные обновились, в противном случаи они остануться те ми же, что до именения.
             }
-        }
-
-        if (mCrimes.size() == 0) {
-            mAdapter.notifyItemChanged(mClickPosition);
         }
 
         updateSubtitle();
