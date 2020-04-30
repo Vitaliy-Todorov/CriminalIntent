@@ -150,11 +150,12 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         switch (item.getItemId()){
             case R.id.delete_crime:
                 CrimeLab.get(getActivity()).deleteCrime(mCrime.getId());
+                Intent intent = CrimeListActivity.newInstanceCLA(getActivity(), -1);
+                startActivity(intent);
                 getActivity().finish();
                 return true;
             default:
-                super.onOptionsItemSelected(item);
-                return true;
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -162,7 +163,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mDateButton.setText(mDfDate.format(mCrime.getDate()));                                   //помещаеть текст на кнопку
     }
 
-    public static CrimeFragment newInstance(UUID crimeId){                                      //Передаёт crimeId во фрагмент, в данном случаи из MainActivity
+    public static CrimeFragment newInstanceCF(UUID crimeId){                                      //Передаёт crimeId во фрагмент, в данном случаи из MainActivity
         Bundle args = new Bundle();                                                             //Аналог Intent только если интент применяется для передачи данных между активнастями, то Bundle служет для передачи данных между фрагментами.
         args.putSerializable(ARG_CRIME_ID, crimeId);                                            //Добовляем crimeId в Bundle
 

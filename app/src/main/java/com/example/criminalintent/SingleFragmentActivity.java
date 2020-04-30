@@ -13,7 +13,7 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle saveInstanceState){
         super.onCreate(saveInstanceState);
-            setContentView(R.layout.activity_fragment);
+        setContentView(R.layout.activity_fragment);
 
         FragmentManager fm = getSupportFragmentManager();                                       //добовляем фрагмент (наверное контейнер фрагмента). Если вы добавляете в активность несколько фрагментов, то обычно для каждого фрагмента создается отдельный контейнер со своим идентификатором.
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);                       //не понимаю зачем это, если поставить null то приложение функцианирует точно так же.

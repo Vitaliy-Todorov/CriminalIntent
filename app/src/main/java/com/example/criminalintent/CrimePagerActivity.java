@@ -3,7 +3,6 @@ package com.example.criminalintent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -48,7 +47,7 @@ public class CrimePagerActivity extends AppCompatActivity implements OnClickList
             @Override
             public Fragment getItem(int position) {                                             //getItem(int) - возвращает фрагмент. Получает наборе данных, после чего использует их для создания и возвращет правильно настроенной экземпляр CrimeFragment.
                 Crime crime = mCrimes.get(position);
-                return CrimeFragment.newInstance(crime.getId());
+                return CrimeFragment.newInstanceCF(crime.getId());
             }
 
             @Override
@@ -81,7 +80,7 @@ public class CrimePagerActivity extends AppCompatActivity implements OnClickList
         }
     }
 
-    public static Intent newIntent(Context packageContext, UUID crimeId){
+    public static Intent newInstanceCPA(Context packageContext, UUID crimeId){
         Intent intent = new Intent(packageContext, CrimePagerActivity.class);
         intent.putExtra(EXTRA_CRIME_ID, crimeId);
         return intent;

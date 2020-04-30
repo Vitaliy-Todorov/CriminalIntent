@@ -2,7 +2,7 @@
 
 package com.example.criminalintent;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +30,7 @@ public class CrimeListFragment extends Fragment {
 
     private static final String TEG = "myLogs";
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
+    private static final String CLICK_POSITION = "com.example.criminalintent.CrimeListFragment";
 
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
@@ -49,15 +49,12 @@ public class CrimeListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
 
-        if(saveInstanceState != null){
+        if(saveInstanceState != null){                                                         //Информация о нажатии в самом фрагменте
             mSubtitleVisible = saveInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+            mClickPosition = saveInstanceState.getInt("click position", 0);
         }
 
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
-
-        if(saveInstanceState != null) {
-            mClickPosition = saveInstanceState.getInt("click position", 0);
-        }
 
         mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
 
@@ -99,7 +96,7 @@ public class CrimeListFragment extends Fragment {
         public void onClick(View view){
 //          Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();          //Активирует всплывающее окно Toast.makeText(куда помещаем, текст сообщения, время в течении которого будет отображение сообщения)
             mClickPosition = this.getAdapterPosition();
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность CrimePagerActivity, передаёт Id преступления.
+            Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность CrimePagerActivity, передаёт Id преступления.
             startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
         }
     }
@@ -159,6 +156,10 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
+
+        if(getArguments() != null || (int)getArguments().getSerializable(CLICK_POSITION) > -2) {                                                            //Информация о нажатии вне данного фрагмента
+            mClickPosition = (int) getArguments().getSerializable(CLICK_POSITION);
+        }
         updateUI();
     }
 
@@ -189,7 +190,7 @@ public class CrimeListFragment extends Fragment {
             case R.id.new_crime:
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), crime.getId());
                 startActivity(intent);
                 return true;
             case R.id.show_subtitle:
@@ -213,5 +214,13 @@ public class CrimeListFragment extends Fragment {
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();                         //AppCompatActivity - Базовый класс для фктивности, использующих функции панели действий ст 216 (панель инструментов в библиотеки AppCompat называется «панелью действий»)
         activity.getSupportActionBar().setSubtitle(subtitle);                                   //(панель инструментов в библиотеки AppCompat называется «панелью действий») getSupportActionBar - выдаёт ActionBar. ActionBar - Основная панель инструментов в действий, которая может отображать заголовок действия, возможности навигации на уровне приложения и другие интерактивные элементы. setSubtitle - запаолняет ActionBar
+    }
+
+    public static CrimeListFragment newInstanceCLF(CrimeListFragment fragment, int mClickPosition){                                      //Передаёт crimeId во фрагмент, в данном случаи из MainActivity
+        Bundle args = new Bundle();                                                             //Аналог Intent только если интент применяется для передачи данных между активнастями, то Bundle служет для передачи данных между фрагментами.
+        args.putSerializable(CLICK_POSITION, mClickPosition);                                            //Добовляем crimeId в Bundle
+
+        fragment.setArguments(args);                                                            //добавляем Bundle во фрагмент.
+        return fragment;
     }
 }
