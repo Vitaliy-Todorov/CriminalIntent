@@ -136,23 +136,6 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    private void updateUI(){                                                                    //Обновляет элементы CrimeListFragment
-        CrimeLab crimeLab = CrimeLab.get(getActivity());                                        //Эта и следующая строчка служать для создания списка приступлений crimes
-        mCrimes = crimeLab.getCrimes();
-        if (mAdapter == null) {
-            mAdapter = new CrimeAdapter(mCrimes);                                                    //Здесь заполняется список RecyclerView, с помощью метода onCreateViewHolder. В данном случаи RecyclerView заполняется crimes. CrimeAdapter - класс наследник RecyclerView
-            mCrimeRecyclerView.setAdapter(mAdapter);                                                //Добовляет адаптер. Адаптеры упрощают связывание данных с элементом управления. Помещаем mAdapter в mCrimeRecyclerView
-        } else {
-            if(mClickPosition >= 0){
-                mAdapter.notifyItemChanged(mClickPosition);                                     //Обновляет конкретное представление в RecyclerView
-            }else {
-                mAdapter.notifyDataSetChanged();                                                    //notifyDataSetChanged приказать RecyclerView перезагрузить все элементы, видимые в настоящее время.. В данном случаи используется для того, что бы при возвращение с предыдущего окна данные обновились, в противном случаи они остануться те ми же, что до именения.
-            }
-        }
-
-        updateSubtitle();
-    }
-
     @Override
     public void onResume(){
         super.onResume();
@@ -206,7 +189,9 @@ public class CrimeListFragment extends Fragment {
     private void updateSubtitle() {                                                             //запаолняет ActionBar
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        int crimeSize = crimeLab.getCrimes().size();
+        //String subtitle = getString(R.string.subtitle_format, crimeCount);                    //Если нужно дабавить однозначную надпись
+        String subtitle = getResources().getQuantityString(R.plurals.subtitle_plural, crimeCount, crimeSize);       //Если есть несколько вариантов надписи (множественное единственное число)
 
         if(!mSubtitleVisible){                                                                  //после повтороного нажатия кнопки перестаёт отображать надпись.
             subtitle = null;
@@ -214,6 +199,27 @@ public class CrimeListFragment extends Fragment {
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();                         //AppCompatActivity - Базовый класс для фктивности, использующих функции панели действий ст 216 (панель инструментов в библиотеки AppCompat называется «панелью действий»)
         activity.getSupportActionBar().setSubtitle(subtitle);                                   //(панель инструментов в библиотеки AppCompat называется «панелью действий») getSupportActionBar - выдаёт ActionBar. ActionBar - Основная панель инструментов в действий, которая может отображать заголовок действия, возможности навигации на уровне приложения и другие интерактивные элементы. setSubtitle - запаолняет ActionBar
+    }
+
+    private void updateUI(){                                                                    //Обновляет элементы CrimeListFragment
+        CrimeLab crimeLab = CrimeLab.get(getActivity());                                        //Эта и следующая строчка служать для создания списка приступлений crimes
+        mCrimes = crimeLab.getCrimes();
+        if (mAdapter == null) {
+            mAdapter = new CrimeAdapter(mCrimes);                                                    //Здесь заполняется список RecyclerView, с помощью метода onCreateViewHolder. В данном случаи RecyclerView заполняется crimes. CrimeAdapter - класс наследник RecyclerView
+            mCrimeRecyclerView.setAdapter(mAdapter);                                                //Добовляет адаптер. Адаптеры упрощают связывание данных с элементом управления. Помещаем mAdapter в mCrimeRecyclerView
+        } else {
+            if(mClickPosition >= 0){
+                mAdapter.notifyItemChanged(mClickPosition);                                     //Обновляет конкретное представление в RecyclerView
+            }else {
+                mAdapter.notifyDataSetChanged();                                                    //notifyDataSetChanged приказать RecyclerView перезагрузить все элементы, видимые в настоящее время.. В данном случаи используется для того, что бы при возвращение с предыдущего окна данные обновились, в противном случаи они остануться те ми же, что до именения.
+            }
+        }
+
+        if (mCrimes.size() == 0) {
+            mAdapter.notifyItemChanged(mClickPosition);
+        }
+
+        updateSubtitle();
     }
 
     public static CrimeListFragment newInstanceCLF(CrimeListFragment fragment, int mClickPosition){                                      //Передаёт crimeId во фрагмент, в данном случаи из MainActivity
