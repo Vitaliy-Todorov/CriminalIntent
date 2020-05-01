@@ -3,11 +3,14 @@
 package com.example.criminalintent;
 
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.criminalintent.database.CrimeBaseHelper;
+import com.example.criminalintent.database.CrimeDbSchema;
+import com.example.criminalintent.database.CrimeDbSchema.CrimeTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,25 +25,8 @@ public class CrimeLab {
 
     private static CrimeLab sCrimeLab;
 
-    private Map<UUID, Crime> mCrimes;
     private Context mContext;
     private SQLiteDatabase mDatabase;
-
-
-    public void addCrime(Crime crime) {
-        mCrimes.put(crime.getId(), crime);
-    }
-
-    public void deleteCrime(UUID id) {
-        mCrimes.remove(id);
-    }
-
-    public static CrimeLab get(Context context){
-        if (sCrimeLab == null){
-            sCrimeLab = new CrimeLab(context);
-        }
-        return sCrimeLab;
-    }
 
     private CrimeLab(Context context){
         mContext = context.getApplicationContext();
@@ -60,14 +46,36 @@ public class CrimeLab {
 
                 3)если база данных открывается не впервые, проверяет номер ее версии. Если версия
                 базы данных в CrimeOpenHelper выше, то вызывается метод onUpgrade(SQLiteDatabase, int, int).*/
-        mCrimes = new LinkedHashMap<>();
+    }
+
+    public void addCrime(Crime crime) {
+        ContentValues values = getContentValues(crime);
+        mDatabase.insert(CrimeTable.NAME, null, values);                        //insert(Имя таблици, XXX, Значение которое мы передаём в таблицу) - добавление записи в базу данных. XXX - (может принимать значение uuid) поволяет обойти ошибку при передачи пустого объекта, и записывает вместо него null. Подробнее стр 292
+    }
+
+    public void deleteCrime(UUID id) {
+    }
+
+    public static CrimeLab get(Context context){
+        if (sCrimeLab == null){
+            sCrimeLab = new CrimeLab(context);
+        }
+        return sCrimeLab;
     }
 
     public List<Crime> getCrimes(){
-        return new ArrayList<>(mCrimes.values());                                               //values() метод для перечисления возвращает массив, содержащий список констант перечисления.
+        return new ArrayList<>();                                               //values() метод для перечисления возвращает массив, содержащий список констант перечисления.
     }
 
     public Crime getCrime(UUID id){
-        return mCrimes.get(id);
+        return null;}
+
+    private static ContentValues getContentValues(Crime crime) {
+        ContentValues values = new ContentValues();                                             //Класс ContentValues обеспечивает хранение пар «ключ-значение», однако в отличие от HashMap или Bundle, он предназначен для хранения типов данных, которые могут содержаться в базах данных SQLite
+        values.put(CrimeTable.Cols.UUID, crime.getId().toString());
+        values.put(CrimeTable.Cols.TITLE, crime.getTitle());
+        values.put(CrimeTable.Cols.DATE, crime.getDate().getTime());
+        values.put(CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
+        return values;
     }
 }
