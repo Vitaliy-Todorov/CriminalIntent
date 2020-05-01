@@ -145,7 +145,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public int getItemViewType(int position){                                               //Переназначает номер представленя с position на то что выдачт return
-            if(mCrimes.get(position).getRequiresPolice()) {
+            if(!mCrimes.get(position).isSolved()) {
                 return R.layout.list_item_crime;
             } else {
                 return R.layout.list_item_serious_crime;
@@ -231,8 +231,10 @@ public class CrimeListFragment extends Fragment {
             mCrimeRecyclerView.setAdapter(mAdapter);                                                //Добовляет адаптер. Адаптеры упрощают связывание данных с элементом управления. Помещаем mAdapter в mCrimeRecyclerView
         } else {
             if(mClickPosition >= 0){
+                //mAdapter.setCrimes(crimes);                                                   //В моём случаи эта строчка не нужена, так как у меня mCrimes - static
                 mAdapter.notifyItemChanged(mClickPosition);                                     //Обновляет конкретное представление в RecyclerView
             }else {
+                //mAdapter.setCrimes(crimes);                                                   //В моём случаи эта строчка не нужена, так как у меня mCrimes - static
                 mAdapter.notifyDataSetChanged();                                                    //notifyDataSetChanged приказать RecyclerView перезагрузить все элементы, видимые в настоящее время.. В данном случаи используется для того, что бы при возвращение с предыдущего окна данные обновились, в противном случаи они остануться те ми же, что до именения.
             }
         }
@@ -247,4 +249,8 @@ public class CrimeListFragment extends Fragment {
         fragment.setArguments(args);                                                            //добавляем Bundle во фрагмент.
         return fragment;
     }
+
+    /*public void setCrimes(List<Crime> crimes) {
+        mCrimes = crimes;                                                                       //В моём случаи этот метод не нужен, так как у меня mCrimes - static
+    }*/
 }

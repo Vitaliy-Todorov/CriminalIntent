@@ -60,10 +60,8 @@ public class CrimeLab {
 
     public static CrimeLab get(Context context){
         if (sCrimeLab == null){
-            Log.d(TEG, "sCrimeLab null - " + sCrimeLab);
             sCrimeLab = new CrimeLab(context);
         }
-        Log.d(TEG, "sCrimeLab - " + sCrimeLab);
         return sCrimeLab;
     }
 
