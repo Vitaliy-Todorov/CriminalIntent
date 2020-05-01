@@ -25,7 +25,8 @@ public class CrimeBaseHelper extends SQLiteOpenHelper {
                 CrimeTable.Cols.UUID + ", " +
                 CrimeTable.Cols.TITLE + ", " +
                 CrimeTable.Cols.DATE + ", " +
-                CrimeTable.Cols.SOLVED +
+                CrimeTable.Cols.SOLVED + ", " +
+                CrimeTable.Cols.SUSPECT +
                 ")");                                                                           //Пояснения по созданию этой строчки смотри ст 286-287. А вообще, это кода определения таблицы
     }
 
