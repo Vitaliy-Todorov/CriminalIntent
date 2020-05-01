@@ -1,3 +1,5 @@
+/*В этом классе создаётся таблица*/
+
 package com.example.criminalintent.database;
 
 import android.content.Context;

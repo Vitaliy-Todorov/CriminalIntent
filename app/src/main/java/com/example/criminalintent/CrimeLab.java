@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.criminalintent.database.CrimeBaseHelper;
+import com.example.criminalintent.database.CrimeCursorWrapper;
 import com.example.criminalintent.database.CrimeDbSchema;
 import com.example.criminalintent.database.CrimeDbSchema.CrimeTable;
 
@@ -67,11 +68,40 @@ public class CrimeLab {
     }
 
     public List<Crime> getCrimes(){
-        return new ArrayList<>();                                               //values() метод для перечисления возвращает массив, содержащий список констант перечисления.
+        List<Crime> crimes = new ArrayList<>();
+        CrimeCursorWrapper cursor = queryCrimes(null, null);
+            /*try – определяет блок кода, в котором может произойти исключение;
+            catch – определяет блок кода, в котором происходит обработка исключения;
+            finally – определяет блок кода, который является необязательным, но при
+            его наличии выполняется в любом случае независимо от результатов выполнения блока try.*/
+        try {
+            cursor.moveToFirst();
+                /*Вызов moveToFirst() выполняет две функции: позволяет проверить, вернул ли запрос пустой набор
+                (путем проверки возвращаемого значения), и он перемещает курсор в первый результат (когда набор не пуст)*/
+            while (!cursor.isAfterLast()) {                                                     //Метод isAfterLast() позволяет проверить, достигнут ли конец выборки
+                crimes.add(cursor.getCrime());
+                cursor.moveToNext();                                                            //moveToNext() — перемещает курсор на следующую строку
+            }
+        } finally {
+            cursor.close();                                                                     //close() - закрывает курсор для освобождения памяти
+        }
+        return crimes;
     }
 
     public Crime getCrime(UUID id){
-        return null;
+        CrimeCursorWrapper cursor = queryCrimes(
+                CrimeTable.Cols.UUID + " = ?",
+                new String[] { id.toString() }
+        );
+        try {
+            if (cursor.getCount() == 0) {
+                return null;
+            }
+            cursor.moveToFirst();
+            return cursor.getCrime();
+        } finally {
+            cursor.close();
+        }
     }
 
     public void updateCrime(Crime crime) {
@@ -82,7 +112,7 @@ public class CrimeLab {
                 new String[] { uuidString });                                                   //update(Имя таблици, Значение которое мы передаём в таблицу, условие WHERE (третий аргумент), значения аргументов в условии WHERE) - изменяет данные в таблице
     }
 
-    private Cursor queryCrimes(String whereClause, String[] whereArgs) {
+    private CrimeCursorWrapper queryCrimes(String whereClause, String[] whereArgs) {
 
         /*Cursor - это интерфейс, который представляет собой двумерную таблицу любой базы данных.
         Когда вы пытаетесь получить некоторые данные с помощью инструкции SELECT, база данных сначала
@@ -97,7 +127,7 @@ public class CrimeLab {
                 null, // having
                 null // orderBy
         );
-        return cursor;
+        return new CrimeCursorWrapper(cursor);
     }
 
     private static ContentValues getContentValues(Crime crime) {

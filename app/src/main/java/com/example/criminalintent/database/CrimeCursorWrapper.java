@@ -1,3 +1,6 @@
+/*Этот класса позволяет дописывать методы для работы с cursor.
+* В частности здесь реализование метод для считывания информации из таблици*/
+
 package com.example.criminalintent.database;
 
 import android.database.Cursor;
