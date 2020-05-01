@@ -5,6 +5,7 @@ package com.example.criminalintent;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -79,6 +80,24 @@ public class CrimeLab {
         mDatabase.update(CrimeTable.NAME, values,
                 CrimeTable.Cols.UUID + " = ?",
                 new String[] { uuidString });                                                   //update(Имя таблици, Значение которое мы передаём в таблицу, условие WHERE (третий аргумент), значения аргументов в условии WHERE) - изменяет данные в таблице
+    }
+
+    private Cursor queryCrimes(String whereClause, String[] whereArgs) {
+
+        /*Cursor - это интерфейс, который представляет собой двумерную таблицу любой базы данных.
+        Когда вы пытаетесь получить некоторые данные с помощью инструкции SELECT, база данных сначала
+        создаст объект Cursor и вернет ссылку на вас*/
+
+        Cursor cursor = mDatabase.query(                                                        //Как я понял эта штука формирует запрос, подробнее можно посмотреть на:https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase?hl=ru#query(java.lang.String,%20java.lang.String%5B%5D,%20java.lang.String,%20java.lang.String%5B%5D,%20java.lang.String,%20java.lang.String,%20java.lang.String)
+                CrimeTable.NAME,
+                null,                                                                   //Число столбцов, если null - выбираются все столбцы
+                whereClause,                                                                    //Фильтр, объявляющий, какие строки возвращать, отформатированный в виде предложения SQL WHERE (исключая сам WHERE). Передача null вернет все строки для данной таблицы.
+                whereArgs,                                                                      //Вы можете включить? S в выделение, которые будут заменены значениями из selectionArgs, чтобы они появлялись в выделении. Значения будут связаны как строки.
+                null, // groupBy
+                null, // having
+                null // orderBy
+        );
+        return cursor;
     }
 
     private static ContentValues getContentValues(Crime crime) {
