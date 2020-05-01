@@ -58,8 +58,10 @@ public class CrimeLab {
 
     public static CrimeLab get(Context context){
         if (sCrimeLab == null){
+            Log.d(TEG, "sCrimeLab null - " + sCrimeLab);
             sCrimeLab = new CrimeLab(context);
         }
+        Log.d(TEG, "sCrimeLab - " + sCrimeLab);
         return sCrimeLab;
     }
 
@@ -68,7 +70,16 @@ public class CrimeLab {
     }
 
     public Crime getCrime(UUID id){
-        return null;}
+        return null;
+    }
+
+    public void updateCrime(Crime crime) {
+        String uuidString = crime.getId().toString();
+        ContentValues values = getContentValues(crime);
+        mDatabase.update(CrimeTable.NAME, values,
+                CrimeTable.Cols.UUID + " = ?",
+                new String[] { uuidString });                                                   //update(Имя таблици, Значение которое мы передаём в таблицу, условие WHERE (третий аргумент), значения аргументов в условии WHERE) - изменяет данные в таблице
+    }
 
     private static ContentValues getContentValues(Crime crime) {
         ContentValues values = new ContentValues();                                             //Класс ContentValues обеспечивает хранение пар «ключ-значение», однако в отличие от HashMap или Bundle, он предназначен для хранения типов данных, которые могут содержаться в базах данных SQLite
