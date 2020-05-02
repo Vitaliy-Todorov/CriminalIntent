@@ -127,10 +127,12 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                 dialogTime.show(manager, DIALOG_TIME);
                 break;
             case R.id.crime_report:
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
-                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+                Intent intent = new Intent(Intent.ACTION_SEND);                                 //ACTION_SEND - Выполняемое действие (action)
+                intent.setType("text/plain");                                                   //Интент не содержит ссылок на данные и не имеет категорий, но определяет тип text/plain. Местонахождение данных — это может быть как ссылка на данные, находящиеся за пределами устройства (скажем, URL веб-страницы), так и URI файла или URI контента, ссылающийся на запись ContentProvider
+                intent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());                           //Тип данных, с которыми работает действие
+                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));        //Необязательные категории — если действие указывает, что нужно сделать, категория обычно описывает, где, когда или как вы пытаетесь использовать операцию.
+                intent = Intent.createChooser(intent, getString(R.string.send_report));             //Говорит о том, что бы информация отображалась в всплывающем окне при использовании неявного интента.
+
                 startActivity(intent);
         }
     }
@@ -199,7 +201,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             suspect = getString(R.string.crime_report_suspect, suspect);
         }
 
-        String report = getString(R.string.crime_report, mCrime.getTitle(), solvedString, dateFormat, suspect);
+        String report = getString(R.string.crime_report, mCrime.getTitle(), solvedString, dateString, suspect);
 
         return report;
     }
