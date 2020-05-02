@@ -5,6 +5,7 @@ package com.example.criminalintent;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -39,12 +40,14 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     private static final String DIALOG_TIME = "DialogTime";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
+    private static final int REQUEST_CONTACT = 1;
 
     private Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
     private Button mBtnTime;
     private Button mReportButton;
+    private Button mSuspectButton;
     private CheckBox mSolvedCheckBox;
 
     private DateFormat mDfDate = new SimpleDateFormat("EEEE, MMM dd, yyyy");
@@ -69,11 +72,17 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){              //заплняет макет (View)
         View v = inflater.inflate(R.layout.fragment_crime, container, false);           //LayoutInflater – это класс, который умеет из содержимого layout-файла создать View-элемент. Метод который это делает называется inflate. inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
 
+        /*Действие задается константой Intent.ACTION_PICK, а местонахождение данных — ContactsContract.Contacts.CONTENT_URI.
+        *ContactsContract - ксласс кечез который происходит взаимодействие с контактами
+        *ContactsContract.Contacts - покласс класса ContactsContract служащий для удаления, создания, изменения и запроса отдельно взятого контакта*/
+        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+
         mTitleField = v.findViewById(R.id.crime_titleET);
         mDateButton = v.findViewById(R.id.crime_date);
         mBtnTime = v.findViewById(R.id.crime_time);
         mSolvedCheckBox = v.findViewById(R.id.crime_solved);
         mReportButton = v.findViewById(R.id.crime_report);
+        mSuspectButton = v.findViewById(R.id.crime_suspect);
 
         updateDate();
         updateTime();
@@ -101,6 +110,27 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mDateButton.setOnClickListener(this);
         mBtnTime.setOnClickListener(this);
         mReportButton.setOnClickListener(this);
+        mSuspectButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                startActivityForResult(pickContact, REQUEST_CONTACT);
+                /*startActivityForResult(Запускаемое действие, Код запроса) - Запустите действие, для которого вы хотите получить результат, когда оно закончится. Когда эта операция завершается, ваш метод
+                onActivityResult () будет вызываться с заданным кодом запроса.
+
+                REQUEST_CONTACT - ЗАПРОС_КОНТАКТА
+
+                onActivityResult(): Вызывается, когда запущенное вами действие завершается, давая вам код запроса, с которого вы его начали,
+                возвращаемый код результата и любые дополнительные данные из него. Код результата будет в том RESULT_CANCELEDслучае, если действие явно
+                вернуло это, не вернуло никакого результата или завершилось сбоем во время своей операции.
+
+                Вы получите этот вызов непосредственно перед onResume (), когда ваша деятельность возобновится.
+
+                Этот метод никогда не вызывается, если ваша активность установлена noHistoryна true.*/
+            }
+        });
+
+        if(mCrime.getSuspect() != null){
+            mSuspectButton.setText(mCrime.getSuspect());
+        }
 
         mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
