@@ -96,7 +96,7 @@ public class CrimeLab {
                 new String[] { id.toString() }
         );
         try {
-            if (cursor.getCount() == 0) {
+            if (cursor.getCount() == 0) {                                                       //getCount() — возвращает количество строк в результирующем наборе данных
                 return null;
             }
             cursor.moveToFirst();

@@ -4,6 +4,9 @@ package com.example.criminalintent;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
@@ -40,7 +43,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     private static final String DIALOG_TIME = "DialogTime";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
-    private static final int REQUEST_CONTACT = 1;
+    private static final int REQUEST_CONTACT = 2;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -72,10 +75,10 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){              //заплняет макет (View)
         View v = inflater.inflate(R.layout.fragment_crime, container, false);           //LayoutInflater – это класс, который умеет из содержимого layout-файла создать View-элемент. Метод который это делает называется inflate. inflater.inflate(идентификатор ресурса макета, родитель представления, нужно ли включать заполненное представление в родителя) - явно заполняем представление фрагмента
 
-        /*Действие задается константой Intent.ACTION_PICK, а местонахождение данных — ContactsContract.Contacts.CONTENT_URI.
-        *ContactsContract - ксласс кечез который происходит взаимодействие с контактами
-        *ContactsContract.Contacts - покласс класса ContactsContract служащий для удаления, создания, изменения и запроса отдельно взятого контакта*/
         final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        /*Действие задается константой Intent.ACTION_PICK, а местонахождение данных — ContactsContract.Contacts.CONTENT_URI.
+        *ContactsContract - ксласс через который происходит взаимодействие с контактами
+        *ContactsContract.Contacts - покласс класса ContactsContract служащий для удаления, создания, изменения и запроса отдельно взятого контакта*/
 
         mTitleField = v.findViewById(R.id.crime_titleET);
         mDateButton = v.findViewById(R.id.crime_date);
@@ -114,17 +117,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             public void onClick(View view) {
                 startActivityForResult(pickContact, REQUEST_CONTACT);
                 /*startActivityForResult(Запускаемое действие, Код запроса) - Запустите действие, для которого вы хотите получить результат, когда оно закончится. Когда эта операция завершается, ваш метод
-                onActivityResult () будет вызываться с заданным кодом запроса.
-
-                REQUEST_CONTACT - ЗАПРОС_КОНТАКТА
-
-                onActivityResult(): Вызывается, когда запущенное вами действие завершается, давая вам код запроса, с которого вы его начали,
-                возвращаемый код результата и любые дополнительные данные из него. Код результата будет в том RESULT_CANCELEDслучае, если действие явно
-                вернуло это, не вернуло никакого результата или завершилось сбоем во время своей операции.
-
-                Вы получите этот вызов непосредственно перед onResume (), когда ваша деятельность возобновится.
-
-                Этот метод никогда не вызывается, если ваша активность установлена noHistoryна true.*/
+                onActivityResult () будет вызываться с заданным кодом запроса. REQUEST_CONTACT - ЗАПРОС_КОНТАКТА*/
             }
         });
 
@@ -169,6 +162,14 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        /*onActivityResult(): Вызывается, когда запущенное вами действие завершается, давая вам код запроса, с которого вы его начали,
+          возвращаемый код результата и любые дополнительные данные из него. Код результата будет в том RESULT_CANCELEDслучае, если действие явно
+          вернуло это, не вернуло никакого результата или завершилось сбоем во время своей операции.
+
+          Вы получите этот вызов непосредственно перед onResume (), когда ваша деятельность возобновится.
+
+          Этот метод никогда не вызывается, если ваша активность установлена noHistoryна true.*/
+
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
@@ -181,6 +182,41 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);        //берёт данный пересланные сюда из фрагмента для которого является целевым
             mCrime.setDate(date);
             updateTime();
+        }
+
+        if(requestCode == REQUEST_CONTACT && data != null) {
+            Uri contactUri = data.getData();                                                    //URI - это специальный идентификатор, по которому можно определить абстрактный или физический ресурс. То есть это адрес ресурса.
+            String[] queryFields = new String[] {ContactsContract.Contacts.DISPLAY_NAME};       //DISPLAY_NAME - ОТОБРАЖАЕМОЕ ИМЯ. String[] - список типа String.
+
+            Cursor cursor = getActivity().getContentResolver()
+                    .query(contactUri,                                                          //contactUri - Content Uri специфичен для отдельных поставщиков контента. query() - Реализуйте это для обработки запросов от клиентов. Подробнее: https://developer.android.com/reference/android/content/ContentProvider#query(android.net.Uri,%20java.lang.String[],%20android.os.Bundle,%20android.os.CancellationSignal)
+                            queryFields,                                                        //String [], описывающий, какие столбцы возвращать.
+                            null,                                                       //предложение WHERE.
+                            null,                                                   //замена значения предложения WHERE (где, куда)
+                            null);                                                      //Порядок сортировки, пример: People.NAME + "ASC"
+            /*getContentResolver: Поставщик является компонентом приложения Android, который зачастую
+            имеет собственный пользовательский интерфейс для работы с данными. Однако поставщики
+            контента предназначены в первую очередь для использования другими приложениями, которые
+            получают доступ к поставщику посредством клиентского объекта поставщика.
+
+            Поставщик контента предоставляет данные внешним приложениям в виде одной или нескольких
+            таблиц, аналогичных таблицам в реляционной базе данных
+
+            Дополнительная информация: https://developer.android.com/guide/topics/providers/content-provider-basics?hl=ru
+            И http://www.ohandroid.com/getcontentresolver.html*/
+
+            if(cursor.getCount() == 0) {                                                        //getCount() - возвращает количество строк в результирующем наборе данных
+                return;                                                                         //он просто выходит из метода в этот момент. После return выполняется, остальная часть кода не будет выполнена.
+            }
+
+            try {
+                cursor.moveToFirst();
+                String suspect = cursor.getString(0);
+                mCrime.setSuspect(suspect);
+                mSuspectButton.setText(suspect);
+            }finally {
+                cursor.close();
+            }
         }
     }
 
