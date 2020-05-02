@@ -23,8 +23,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import static android.widget.CompoundButton.*;
@@ -42,6 +44,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     private EditText mTitleField;
     private Button mDateButton;
     private Button mBtnTime;
+    private Button mReportButton;
     private CheckBox mSolvedCheckBox;
 
     private DateFormat mDfDate = new SimpleDateFormat("EEEE, MMM dd, yyyy");
@@ -70,6 +73,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mDateButton = v.findViewById(R.id.crime_date);
         mBtnTime = v.findViewById(R.id.crime_time);
         mSolvedCheckBox = v.findViewById(R.id.crime_solved);
+        mReportButton = v.findViewById(R.id.crime_report);
 
         updateDate();
         updateTime();
@@ -96,6 +100,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
         mDateButton.setOnClickListener(this);
         mBtnTime.setOnClickListener(this);
+        mReportButton.setOnClickListener(this);
 
         mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -105,10 +110,6 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             }
         });
         return v;
-    }
-
-    private void updateTime() {
-        mBtnTime.setText(mDfTime.format(mCrime.getDate()));
     }
 
     @Override
@@ -125,6 +126,12 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                 dialogTime.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
                 dialogTime.show(manager, DIALOG_TIME);
                 break;
+            case R.id.crime_report:
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+                startActivity(intent);
         }
     }
 
@@ -167,6 +174,34 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
     private void updateDate() {
         mDateButton.setText(mDfDate.format(mCrime.getDate()));                                   //помещаеть текст на кнопку
+    }
+
+    private void updateTime() {
+        mBtnTime.setText(mDfTime.format(mCrime.getDate()));
+    }
+
+    private String getCrimeReport() {
+        String solvedString = null;
+        if(mCrime.isSolved()){
+            solvedString = getString(R.string.crime_report_solved);
+        }else {
+            solvedString = getString(R.string.crime_report_unsolved);
+        }
+
+        Locale locale = new Locale("ru");
+        DateFormat dateFormat = new SimpleDateFormat("EEEE, MMM dd, yyyy, HH:mm", locale);
+        String dateString = dateFormat.format( mCrime.getDate());
+
+        String suspect = mCrime.getSuspect();
+        if(suspect == null){
+            suspect = getString(R.string.crime_report_no_suspect);
+        } else {
+            suspect = getString(R.string.crime_report_suspect, suspect);
+        }
+
+        String report = getString(R.string.crime_report, mCrime.getTitle(), solvedString, dateFormat, suspect);
+
+        return report;
     }
 
     public static CrimeFragment newInstanceCF(UUID crimeId){                                      //Передаёт crimeId во фрагмент, в данном случаи из MainActivity
