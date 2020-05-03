@@ -132,6 +132,28 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                 mCrime.setSolved(b);
             }
         });
+
+        //В общем, по идеи дальнейший код проверяет, нашёл ли Intent (в данном случаи pickContact) к какому приложению обратится, если нет, то он блокирует кнопкуь.
+        //pickContact.addCategory(Intent.CATEGORY_HOME);                                          //Так и не понял толком, как эта строчка работает. Вообще она сделана для проверке следующего за ней кода, что бы в if было true.
+        /*addCategory - Добавить новую категорию к цели. Категории предоставляют дополнительную информацию о действии, которое выполняет намерение. При разрешении намерения будут использоваться только те действия, которые обеспечивают все запрошенные категории.*/
+        PackageManager packageManager = getActivity().getPackageManager();
+        if(packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+            mSuspectButton.setEnabled(false);                                                   //setEnabled - Выключает кнопку.
+        }
+        /*Класс для получения различных видов информации, связанной с пакетами приложений, которые в настоящее время установлены на устройстве.
+        Вы можете найти этот класс через Context.getPackageManager.
+
+        Вызывая resolveActivity(Intent, int), вы приказываете найти активность, соответствующую переданному интенту.
+
+        PackageManager.MATCH_DEFAULT_ONLY - Если вы укажете, MATCH_DEFAULT_ONLYвызов вернет
+        ResolveInfoобъект для всех действий, которые соответствуют предоставленной Intent. При
+        выполнении согласования, Android будет рассматривать только мероприятия , которые имеют
+        CATEGORY=DEFAULTв своем <intent-filter>определении в манифесте. Это то же самое поведение
+        соответствия, используемый при вызове startActivity()на Intent. Если вы не укажете этот флаг,
+        запрос вернет все совпадающие действия, даже те, которые не содержат CATEGORY=DEFAULTих
+        <intent-filter>. Конечно, если то, Intentчто вы передаете, queryIntentActivities()уже
+        содержит CATEGORY=DEFAULT, то флаг не нужен.*/
+
         return v;
     }
 
