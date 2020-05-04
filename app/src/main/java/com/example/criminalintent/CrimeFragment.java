@@ -277,6 +277,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             try {
                 cursor.moveToFirst();
                 String number_ = cursor.getString(0);
+                mCrime.setNumber(number_);
 
                 //Вызов по выбранному номеру телефону
                 Uri number = Uri.parse("tel:" + number_);
