@@ -264,6 +264,22 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             if(!hasLocationPermission()){
                 requestPermissions(LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSIONS);         //Если права READ_CONTACTS не получины, запрашивает у пользователя разрешение на их получение, так же, нужно указать в файле Manifest, строчку <uses-permission android:name="android.permission.READ_CONTACTS"/>
             }
+
+            Uri contactUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+            String[] queryFields = new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER};
+            Cursor cursor = getActivity().getContentResolver().query(contactUri, queryFields, null, null, null);
+
+            if(cursor.getCount() == 0) {
+                return;
+            }
+
+            try {
+                cursor.moveToFirst();
+                String number = cursor.getString(0);
+                mCallCriminal.setText(number);
+            }finally {
+                cursor.close();
+            }
         }
     }
 
