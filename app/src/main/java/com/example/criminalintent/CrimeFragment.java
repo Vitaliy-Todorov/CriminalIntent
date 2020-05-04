@@ -2,6 +2,7 @@
 
 package com.example.criminalintent;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +25,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import androidx.core.app.ShareCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -42,9 +44,12 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
     private static final String DIALOG_TIME = "DialogTime";
+    private static final int REQUEST_LOCATION_PERMISSIONS = 4;
+    private static final String[] LOCATION_PERMISSIONS = new String[] {Manifest.permission.READ_CONTACTS};
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
-    private static final int REQUEST_CONTACT = 2;
+    private static final int REQUEST_NAME = 2;
+    private static final int REQUEST_NUMBER = 3;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -52,6 +57,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     private Button mBtnTime;
     private Button mReportButton;
     private Button mSuspectButton;
+    private Button mCallCriminal;
     private CheckBox mSolvedCheckBox;
 
     private DateFormat mDfDate = new SimpleDateFormat("EEEE, MMM dd, yyyy");
@@ -87,6 +93,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mSolvedCheckBox = v.findViewById(R.id.crime_solved);
         mReportButton = v.findViewById(R.id.crime_report);
         mSuspectButton = v.findViewById(R.id.crime_suspect);
+        mCallCriminal = v.findViewById(R.id.call_criminal);
 
         updateDate();
         updateTime();
@@ -116,9 +123,14 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mReportButton.setOnClickListener(this);
         mSuspectButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                startActivityForResult(pickContact, REQUEST_CONTACT);
+                startActivityForResult(pickContact, REQUEST_NAME);
                 /*startActivityForResult(Запускаемое действие, Код запроса) - Запустите действие, для которого вы хотите получить результат, когда оно закончится. Когда эта операция завершается, ваш метод
-                onActivityResult () будет вызываться с заданным кодом запроса. REQUEST_CONTACT - ЗАПРОС_КОНТАКТА*/
+                onActivityResult () будет вызываться с заданным кодом запроса. REQUEST_NAME - ЗАПРОС_КОНТАКТА*/
+            }
+        });
+        mCallCriminal.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                startActivityForResult(pickContact, REQUEST_NUMBER);
             }
         });
 
@@ -213,7 +225,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             updateTime();
         }
 
-        if(requestCode == REQUEST_CONTACT && data != null) {
+        if(requestCode == REQUEST_NAME && data != null) {
             Uri contactUri = data.getData();                                                    //URI - это специальный идентификатор, по которому можно определить абстрактный или физический ресурс. То есть это адрес ресурса.
             String[] queryFields = new String[] {ContactsContract.Contacts.DISPLAY_NAME};       //DISPLAY_NAME - ОТОБРАЖАЕМОЕ ИМЯ. String[] - список типа String.
 
@@ -247,6 +259,12 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                 cursor.close();
             }
         }
+
+        if (requestCode == REQUEST_NUMBER && data != null) {
+            if(!hasLocationPermission()){
+                requestPermissions(LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSIONS);         //Если права READ_CONTACTS не получины, запрашивает у пользователя разрешение на их получение, так же, нужно указать в файле Manifest, строчку <uses-permission android:name="android.permission.READ_CONTACTS"/>
+            }
+        }
     }
 
     @Override
@@ -277,7 +295,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mBtnTime.setText(mDfTime.format(mCrime.getDate()));
     }
 
-    private String getCrimeReport() {
+    private String getCrimeReport() {                                                           //Формирует текст отчёта по преступлению для  смс сообщения
         String solvedString = null;
         if(mCrime.isSolved()){
             solvedString = getString(R.string.crime_report_solved);
@@ -299,6 +317,12 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         String report = getString(R.string.crime_report, mCrime.getTitle(), solvedString, dateString, suspect);
 
         return report;
+    }
+
+    private boolean hasLocationPermission(){                                                    //Проверяет наличие прав доступа READ_CONTACTS, так же, нужно указать в файле Manifest, строчку <uses-permission android:name="android.permission.READ_CONTACTS"/>
+        int result = ContextCompat
+                .checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS);
+        return result == PackageManager.PERMISSION_GRANTED;
     }
 
     public static CrimeFragment newInstanceCF(UUID crimeId){                                      //Передаёт crimeId во фрагмент, в данном случаи из MainActivity
