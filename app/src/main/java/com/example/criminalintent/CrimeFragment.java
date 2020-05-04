@@ -265,6 +265,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                 requestPermissions(LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSIONS);         //Если права READ_CONTACTS не получины, запрашивает у пользователя разрешение на их получение, так же, нужно указать в файле Manifest, строчку <uses-permission android:name="android.permission.READ_CONTACTS"/>
             }
 
+            //от сюда и до следующего коментария, идёт запрос номера телефона
             Uri contactUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
             String[] queryFields = new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER};
             Cursor cursor = getActivity().getContentResolver().query(contactUri, queryFields, null, null, null);
@@ -275,8 +276,16 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
             try {
                 cursor.moveToFirst();
-                String number = cursor.getString(0);
-                mCallCriminal.setText(number);
+                String number_ = cursor.getString(0);
+
+                //Вызов по выбранному номеру телефону
+                Uri number = Uri.parse("tel:" + number_);
+
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(number);
+
+                startActivity(intent);
+                //Сдесь вызов по номеру заканчивается
             }finally {
                 cursor.close();
             }
