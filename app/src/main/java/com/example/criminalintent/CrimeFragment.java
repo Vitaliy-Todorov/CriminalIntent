@@ -23,6 +23,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
@@ -59,6 +61,8 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     private Button mSuspectButton;
     private Button mCallCriminal;
     private CheckBox mSolvedCheckBox;
+    private ImageView mPhotoView;
+    private ImageButton mPhotoButton;
 
     private DateFormat mDfDate = new SimpleDateFormat("EEEE, MMM dd, yyyy");
     private DateFormat mDfTime = new SimpleDateFormat("HH:mm");
@@ -94,6 +98,8 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mReportButton = v.findViewById(R.id.crime_report);
         mSuspectButton = v.findViewById(R.id.crime_suspect);
         mCallCriminal = v.findViewById(R.id.call_criminal);
+        mPhotoButton = v.findViewById(R.id.crime_camera);
+        mPhotoView = v.findViewById(R.id.crime_photo);
 
         updateDate();
         updateTime();
@@ -138,14 +144,6 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             mSuspectButton.setText(mCrime.getSuspect());
         }
 
-        mSolvedCheckBox.setChecked(mCrime.isSolved());
-        mSolvedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                mCrime.setSolved(b);
-            }
-        });
-
         //В общем, по идеи дальнейший код проверяет, нашёл ли Intent (в данном случаи pickContact) к какому приложению обратится, если нет, то он блокирует кнопкуь.
         //pickContact.addCategory(Intent.CATEGORY_HOME);                                          //Так и не понял толком, как эта строчка работает. Вообще она сделана для проверке следующего за ней кода, что бы в if было true.
         /*addCategory - Добавить новую категорию к цели. Категории предоставляют дополнительную информацию о действии, которое выполняет намерение. При разрешении намерения будут использоваться только те действия, которые обеспечивают все запрошенные категории.*/
@@ -158,14 +156,22 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
         Вызывая resolveActivity(Intent, int), вы приказываете найти активность, соответствующую переданному интенту.
 
-        PackageManager.MATCH_DEFAULT_ONLY - Если вы укажете, MATCH_DEFAULT_ONLYвызов вернет
-        ResolveInfoобъект для всех действий, которые соответствуют предоставленной Intent. При
+        PackageManager.MATCH_DEFAULT_ONLY - Если вы укажете, MATCH_DEFAULT_ONLY вызов вернет
+        ResolveInfo объект для всех действий, которые соответствуют предоставленной Intent. При
         выполнении согласования, Android будет рассматривать только мероприятия , которые имеют
         CATEGORY=DEFAULTв своем <intent-filter>определении в манифесте. Это то же самое поведение
         соответствия, используемый при вызове startActivity()на Intent. Если вы не укажете этот флаг,
-        запрос вернет все совпадающие действия, даже те, которые не содержат CATEGORY=DEFAULTих
-        <intent-filter>. Конечно, если то, Intentчто вы передаете, queryIntentActivities()уже
+        запрос вернет все совпадающие действия, даже те, которые не содержат CATEGORY=DEFAUL Tих
+        <intent-filter>. Конечно, если то, Intent что вы передаете, queryIntentActivities()уже
         содержит CATEGORY=DEFAULT, то флаг не нужен.*/
+
+        mSolvedCheckBox.setChecked(mCrime.isSolved());
+        mSolvedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mCrime.setSolved(b);
+            }
+        });
 
         return v;
     }
