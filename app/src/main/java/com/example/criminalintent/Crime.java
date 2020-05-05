@@ -76,4 +76,8 @@ public class Crime {
     public void setNumber(String number) {
         mNumber = number;
     }
+
+    public String getPhotoFilename() {
+        return  "IMG_" + getId().toString() + ".jpg";
+    }
 }

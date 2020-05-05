@@ -14,6 +14,7 @@ import com.example.criminalintent.database.CrimeCursorWrapper;
 import com.example.criminalintent.database.CrimeDbSchema;
 import com.example.criminalintent.database.CrimeDbSchema.CrimeTable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -141,5 +142,10 @@ public class CrimeLab {
         values.put(CrimeTable.Cols.SUSPECT, crime.getSuspect());
 
         return values;
+    }
+
+    private File getPhotoFile(Crime crime) {
+        File filesDir = mContext.getFilesDir();                                                //Возвращает абсолютный путь к каталогу в файловой системе, где openFileOutput(String, int)хранятся файлы, созданные с помощью .
+        return  new File(filesDir, crime.getPhotoFilename());                                   //File(путь, имя) - не создаёт файла, а лишь создаёт под него место
     }
 }
