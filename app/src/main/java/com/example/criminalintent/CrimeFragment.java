@@ -6,10 +6,12 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -28,13 +30,16 @@ import android.widget.ImageView;
 
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -52,8 +57,10 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     private static final int REQUEST_TIME = 1;
     private static final int REQUEST_NAME = 2;
     private static final int REQUEST_NUMBER = 3;
+    private static final int REQUEST_PHOTO= 4;
 
     private Crime mCrime;
+    private File mPhotoFile;
     private EditText mTitleField;
     private Button mDateButton;
     private Button mBtnTime;
@@ -73,6 +80,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         //UUID crimeID = (UUID) getActivity().getIntent().getSerializableExtra(MainActivity.EXTRA_CRIME_ID);          //Это всё служет для передачи данных между активностями, в отличик от реализованной передаче межуд фрагментами.
         UUID crimeID = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeID);
+        mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);                          //Cохранение местонахождения файла фотографии
         setHasOptionsMenu(true);
     }
     @Override
@@ -127,31 +135,17 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mDateButton.setOnClickListener(this);
         mBtnTime.setOnClickListener(this);
         mReportButton.setOnClickListener(this);
-        mSuspectButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                startActivityForResult(pickContact, REQUEST_NAME);
-                /*startActivityForResult(Запускаемое действие, Код запроса) - Запустите действие, для которого вы хотите получить результат, когда оно закончится. Когда эта операция завершается, ваш метод
-                onActivityResult () будет вызываться с заданным кодом запроса. REQUEST_NAME - ЗАПРОС_КОНТАКТА*/
-            }
-        });
-        mCallCriminal.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                startActivityForResult(pickContact, REQUEST_NUMBER);
-            }
-        });
+        mPhotoButton.setOnClickListener(this);
 
-        if(mCrime.getSuspect() != null){
-            mSuspectButton.setText(mCrime.getSuspect());
-        }
-
-        //В общем, по идеи дальнейший код проверяет, нашёл ли Intent (в данном случаи pickContact) к какому приложению обратится, если нет, то он блокирует кнопкуь.
+//Дальше идёт обработака отправки смс и совершения звонка
+        //В общем, по идеи дальнейший код проверяет, нашёл ли Intent (в данном случаи pickContact) к какому приложению обратится, если нет, то он блокирует кнопку.
         //pickContact.addCategory(Intent.CATEGORY_HOME);                                          //Так и не понял толком, как эта строчка работает. Вообще она сделана для проверке следующего за ней кода, что бы в if было true.
         /*addCategory - Добавить новую категорию к цели. Категории предоставляют дополнительную информацию о действии, которое выполняет намерение. При разрешении намерения будут использоваться только те действия, которые обеспечивают все запрошенные категории.*/
         PackageManager packageManager = getActivity().getPackageManager();
         if(packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) == null) {
             mSuspectButton.setEnabled(false);                                                   //setEnabled - Выключает кнопку.
         }
-        /*Класс для получения различных видов информации, связанной с пакетами приложений, которые в настоящее время установлены на устройстве.
+        /*PackageManager - класс для получения различных видов информации, связанной с пакетами приложений, которые в настоящее время установлены на устройстве.
         Вы можете найти этот класс через Context.getPackageManager.
 
         Вызывая resolveActivity(Intent, int), вы приказываете найти активность, соответствующую переданному интенту.
@@ -164,6 +158,28 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         запрос вернет все совпадающие действия, даже те, которые не содержат CATEGORY=DEFAUL Tих
         <intent-filter>. Конечно, если то, Intent что вы передаете, queryIntentActivities()уже
         содержит CATEGORY=DEFAULT, то флаг не нужен.*/
+
+        mSuspectButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                startActivityForResult(pickContact, REQUEST_NAME);
+                /*startActivityForResult(Запускаемое действие, Код запроса) - Запустите действие, для которого вы хотите получить результат, когда оно закончится. Когда эта операция завершается, ваш метод
+                onActivityResult () будет вызываться с заданным кодом запроса. REQUEST_NAME - ЗАПРОС_КОНТАКТА*/
+            }
+        });
+
+        //Второй способ заблокировать кнопку:
+        boolean canCall = packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) != null;
+        mCallCriminal.setEnabled(canCall);
+        mCallCriminal.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                startActivityForResult(pickContact, REQUEST_NUMBER);
+            }
+        });
+//Здесь заканчивается обработака отправки смс и совершения звонка (большая часть кода находится в onActivityResult)
+
+        if(mCrime.getSuspect() != null){
+            mSuspectButton.setText(mCrime.getSuspect());
+        }
 
         mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -178,6 +194,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View view){
+        PackageManager packageManager = getActivity().getPackageManager();
         FragmentManager manager = getFragmentManager();
         switch (view.getId()){
             case R.id.crime_date:
@@ -204,6 +221,31 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                         .createChooserIntent();
 
                 startActivity(intent);
+                break;
+            case R.id.crime_camera:
+                Intent captureImageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);        //MediaStore - через этот класс проиходит работа с аудиовизуальными интерфейсами (короче к нему нужно обращаться по поводу аудиовизуальных штук). ACTION_CAPTURE_IMAGE - по умолчанию запускает приложение камеры и делает снимокно результат не является фотографией в полном разрешении.
+                if(mPhotoFile == null && captureImageIntent.resolveActivity(packageManager) == null) { break; }         //Если нет нужного приложения ничего не делать
+
+                Uri uri = FileProvider
+                        .getUriForFile(getActivity(), "com.bignerdranch.android.criminalintent.fileprovider", mPhotoFile);
+                                //преобразует локальный путь к файлу в объект Uri, «понятный» приложению камеры. com.bignerdranch.android.criminalintent.fileprovider - путь укаханный в фйле Manifests, в месте активации класса FileProvider
+                captureImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                        //Чтобы получить выходное изображение в высоком разрешении, необходимо сообщить, где должно храниться изображение в файловой системе. Эта задача решается передачей URI для места, в котором должен сохраняться файл, в MediaStore.EXTRA_OUTPUT. URI будет указывать на место, предоставленное FileProvider.
+
+                //Дальнейший код написан для получения доступа
+                List<ResolveInfo> cameraActivities = getActivity().getPackageManager()
+                        .queryIntentActivities(captureImageIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                                //queryIntentActivities - Получить все действия, которые могут быть выполнены для данного намерения
+
+                for(ResolveInfo activity : cameraActivities) {
+                    getActivity().grantUriPermission(activity.activityInfo.packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            //grantUriPermission - Предоставьте разрешение на доступ к определенному Uri другому пакету
+                                    //FLAG_GRANT_WRITE_URI_PERMISSION - Флаг предоставляет разрешение на запись для этого конкретного Uri. Включение атрибута android:grantUriPermissions в объявление провайдера было необходимо для того, чтобы разблокировать эту функциональность.
+                }
+                //Доступ получен
+
+                startActivityForResult(captureImageIntent, REQUEST_PHOTO);
+                break;
         }
     }
 
@@ -319,14 +361,6 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-    private void updateDate() {
-        mDateButton.setText(mDfDate.format(mCrime.getDate()));                                   //помещаеть текст на кнопку
-    }
-
-    private void updateTime() {
-        mBtnTime.setText(mDfTime.format(mCrime.getDate()));
-    }
-
     private String getCrimeReport() {                                                           //Формирует текст отчёта по преступлению для  смс сообщения
         String solvedString = null;
         if(mCrime.isSolved()){
@@ -349,6 +383,14 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         String report = getString(R.string.crime_report, mCrime.getTitle(), solvedString, dateString, suspect);
 
         return report;
+    }
+
+    private void updateDate() {
+        mDateButton.setText(mDfDate.format(mCrime.getDate()));                                   //помещаеть текст на кнопку
+    }
+
+    private void updateTime() {
+        mBtnTime.setText(mDfTime.format(mCrime.getDate()));
     }
 
     private boolean hasLocationPermission(){                                                    //Проверяет наличие прав доступа READ_CONTACTS, так же, нужно указать в файле Manifest, строчку <uses-permission android:name="android.permission.READ_CONTACTS"/>
