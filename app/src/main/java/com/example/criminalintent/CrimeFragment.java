@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -108,6 +109,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mCallCriminal = v.findViewById(R.id.call_criminal);
         mPhotoButton = v.findViewById(R.id.crime_camera);
         mPhotoView = v.findViewById(R.id.crime_photo);
+        updatePhotoView();
 
         updateDate();
         updateTime();
@@ -228,7 +230,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
                 Uri uri = FileProvider
                         .getUriForFile(getActivity(), "com.bignerdranch.android.criminalintent.fileprovider", mPhotoFile);
-                                //преобразует локальный путь к файлу в объект Uri, «понятный» приложению камеры. com.bignerdranch.android.criminalintent.fileprovider - путь укаханный в фйле Manifests, в месте активации класса FileProvider
+                                //getUriForFile - преобразует локальный путь к файлу в объект Uri, «понятный» приложению камеры. com.bignerdranch.android.criminalintent.fileprovider - путь укаханный в фйле Manifests, в месте активации класса FileProvider
                 captureImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                         //Чтобы получить выходное изображение в высоком разрешении, необходимо сообщить, где должно храниться изображение в файловой системе. Эта задача решается передачей URI для места, в котором должен сохраняться файл, в MediaStore.EXTRA_OUTPUT. URI будет указывать на место, предоставленное FileProvider.
 
@@ -339,6 +341,16 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                 cursor.close();
             }
         }
+
+        if (requestCode == REQUEST_PHOTO) {                                                     //обновляет изображение на mPhotoViewпосле возвращения с камеры
+            Uri uri = FileProvider.getUriForFile(getActivity(),
+                    "com.bignerdranch.android.criminalintent.fileprovider",
+                    mPhotoFile);
+
+            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);             //revokeUriPermission - отозвать разрешение и снова перекрыть доступ к файлу (как бы закрывает разрешение полученное с помощью grantUriPermissio)
+
+            updatePhotoView();
+        }
     }
 
     @Override
@@ -391,6 +403,15 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
     private void updateTime() {
         mBtnTime.setText(mDfTime.format(mCrime.getDate()));
+    }
+
+    private void updatePhotoView() {                                                            //Вславляет фото с камеры в mPhotoView
+        if(mPhotoFile == null || !mPhotoFile.exists()){                                         //exists() - Проверяет, существует ли файл или каталог, обозначенный этим абстрактным путем.
+            mPhotoView.setImageDrawable(null);                                                  //setImageDrawable(Drawable drawable) - Устанавливает рисование как содержимое этого ImageView.
+        } else {
+            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity());
+            mPhotoView.setImageBitmap(bitmap);
+        }
     }
 
     private boolean hasLocationPermission(){                                                    //Проверяет наличие прав доступа READ_CONTACTS, так же, нужно указать в файле Manifest, строчку <uses-permission android:name="android.permission.READ_CONTACTS"/>
