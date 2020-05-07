@@ -52,6 +52,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
     private static final String DIALOG_TIME = "DialogTime";
+    private static final String DIALOG_BIG_PICTURE = "DialogBigPicture";
     private static final int REQUEST_LOCATION_PERMISSIONS = 4;
     private static final String[] LOCATION_PERMISSIONS = new String[] {Manifest.permission.READ_CONTACTS};
     private static final int REQUEST_DATE = 0;
@@ -138,6 +139,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mBtnTime.setOnClickListener(this);
         mReportButton.setOnClickListener(this);
         mPhotoButton.setOnClickListener(this);
+        mPhotoView.setOnClickListener(this);
 
 //Дальше идёт обработака отправки смс и совершения звонка
         //В общем, по идеи дальнейший код проверяет, нашёл ли Intent (в данном случаи pickContact) к какому приложению обратится, если нет, то он блокирует кнопку.
@@ -247,6 +249,10 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                 //Доступ получен
 
                 startActivityForResult(captureImageIntent, REQUEST_PHOTO);
+                break;
+            case R.id.crime_photo:
+                BigPicturePickerFragment bigPicture =  BigPicturePickerFragment.newInstance(mPhotoFile);
+                bigPicture.show(manager, DIALOG_BIG_PICTURE);
                 break;
         }
     }
