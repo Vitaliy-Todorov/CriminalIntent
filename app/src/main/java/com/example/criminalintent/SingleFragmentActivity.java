@@ -31,6 +31,6 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
 
     @LayoutRes                                                                                  //@LayoutRes - Обозначает, что целочисленное возвращаемое значение параметра, поля или метода, как ожидается, будет ссылкой на ресурс макета
     protected int getLayoutResId() {
-        return R.layout.activity_twopane;
+        return R.layout.activity_masterdetail;
     }
 }
