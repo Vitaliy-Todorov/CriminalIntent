@@ -2,10 +2,8 @@
 
 package com.example.criminalintent;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.security.auth.callback.Callback;
+
 public class CrimeListFragment extends Fragment {
 
     private static final String TEG = "myLogs";
@@ -44,6 +44,11 @@ public class CrimeListFragment extends Fragment {
 
     private boolean mSubtitleVisible;
     private int mClickPosition = -1;
+    private Callback mCallback;
+
+    public  interface Callbacks {                                                               //Создаём интерфейс
+        void onCrimeSelected(Crime crime);
+    }
 
     @Override
     public  void onCreate(Bundle savedInstanceState){
@@ -99,6 +104,14 @@ public class CrimeListFragment extends Fragment {
             mSolvedImageView = itemView.findViewById(R.id.crime_solved);
         }
 
+        @Override
+        public void onClick(View view){
+//          Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();          //Активирует всплывающее окно Toast.makeText(куда помещаем, текст сообщения, время в течении которого будет отображение сообщения)
+            mClickPosition = this.getAdapterPosition();
+            Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность CrimePagerActivity, передаёт Id преступления.
+            startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
+        }
+
         public void bind(Crime crime){                                                          //Добовляет view в представление
             mCrime = crime;
 
@@ -107,14 +120,6 @@ public class CrimeListFragment extends Fragment {
             mTitleTextView.setText(mCrime.getTitle());
             mDateTextView.setText(df.format(mCrime.getDate()));
             mSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.GONE);        //VISIBLE - ВИДИМЫЙ. GONE - УШЕДШИЙ
-        }
-
-        @Override
-        public void onClick(View view){
-//          Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();          //Активирует всплывающее окно Toast.makeText(куда помещаем, текст сообщения, время в течении которого будет отображение сообщения)
-            mClickPosition = this.getAdapterPosition();
-            Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность CrimePagerActivity, передаёт Id преступления.
-            startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
         }
     }
 
@@ -201,6 +206,15 @@ public class CrimeListFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public  void onDetach() {
+        /*Вызывается, когда фрагмент больше не привязан к своей активности. Это вызывается после
+        onDestroy(), за исключением случаев, когда экземпляр фрагмента сохраняется при повторном
+        создании действия (см. setRetainInstance(boolean)), И в этом случае он вызывается после onStop().*/
+        super.onDetach();
+        mCallback = null;
     }
 
     private void updateSubtitle() {                                                             //запаолняет ActionBar

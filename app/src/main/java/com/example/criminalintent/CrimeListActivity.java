@@ -7,9 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.annotation.LayoutRes;
 import androidx.fragment.app.Fragment;
 
-public class CrimeListActivity extends SingleFragmentActivity {
+public class CrimeListActivity extends SingleFragmentActivity implements CrimeListFragment.Callbacks {
 
     private static final String TEG = "myLogs";
     private static final String EXTRA_CLA_INTEGER = "com.example.criminalintent.CLF.int";
@@ -19,6 +20,16 @@ public class CrimeListActivity extends SingleFragmentActivity {
     @Override
     protected Fragment createFragment(){                                                        //Создаётся фрагмент. Функция createFragment(); переопределяется в классе создающем фрагмент. Изначально определена в классе SingleFragmentActivity. На выхлде выдаёт объект класса Fragment
         return mFragment;
+    }
+
+    @LayoutRes                                                                                  //@LayoutRes - Обозначает, что целочисленное возвращаемое значение параметра, поля или метода, как ожидается, будет ссылкой на ресурс макета
+    protected int getLayoutResId() {
+        return R.layout.activity_masterdetail;
+    }
+
+    @Override
+    public void onCrimeSelected(Crime crime) {
+
     }
 
     @Override

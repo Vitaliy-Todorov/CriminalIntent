@@ -14,7 +14,7 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle saveInstanceState){
         super.onCreate(saveInstanceState);
-        //setContentView(R.layout.activity_fragment);
+        //setContentView(R.layout.activity_fragment);                                           //Определяет какой xlm фаил использовать
         setContentView(getLayoutResId());
 
         FragmentManager fm = getSupportFragmentManager();                                       //добовляем фрагмент (наверное контейнер фрагмента). Если вы добавляете в активность несколько фрагментов, то обычно для каждого фрагмента создается отдельный контейнер со своим идентификатором.
@@ -31,6 +31,6 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
 
     @LayoutRes                                                                                  //@LayoutRes - Обозначает, что целочисленное возвращаемое значение параметра, поля или метода, как ожидается, будет ссылкой на ресурс макета
     protected int getLayoutResId() {
-        return R.layout.activity_masterdetail;
+        return R.layout.activity_twopane;
     }
 }
