@@ -43,16 +43,16 @@ public class CrimeListFragment extends Fragment {
 
     private boolean mSubtitleVisible;
     private int mClickPosition = -1;
-    private Callbacks mCallback;
+    private Callbacks mCallbacks;
 
-    public  interface Callbacks {                                                               //Создаём интерфейс
+    public  interface Callbacks {                                                               //Создаём интерфейс который будет передавать информацияю. В данном случаи говорит CrimeListActivity какое приступление было выбранно из списка
         void onCrimeSelected(Crime crime);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mCallback = (Callbacks) context;
+        mCallbacks = (Callbacks) context;
     }
 
     @Override
@@ -115,7 +115,7 @@ public class CrimeListFragment extends Fragment {
             mClickPosition = this.getAdapterPosition();
             //Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность CrimePagerActivity, передаёт Id преступления.
             //startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
-            mCallback.onCrimeSelected(mCrime);                                                  //Думаю мы меняем
+            mCallbacks.onCrimeSelected(mCrime);                                                  //Передаёт в активность CrimeListActivity, какой crime нужно передать во фрагмент CrimeFragment
         }
 
         public void bind(Crime crime){                                                          //Добовляет view в представление
@@ -204,7 +204,7 @@ public class CrimeListFragment extends Fragment {
                 //Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), crime.getId());
                 //startActivity(intent);
                 updateUI();                                                                     //Эта и следуящая строчка вместо предыдущих, для случая с планшетным режимом
-                mCallback.onCrimeSelected(crime);                                               //Передаёт в активность CrimeListActivity, какой crime нужно передать во фрагмент CrimeFragment
+                mCallbacks.onCrimeSelected(crime);                                               //Передаёт в активность CrimeListActivity, какой crime нужно передать во фрагмент CrimeFragment
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -222,7 +222,7 @@ public class CrimeListFragment extends Fragment {
         onDestroy(), за исключением случаев, когда экземпляр фрагмента сохраняется при повторном
         создании действия (см. setRetainInstance(boolean)), И в этом случае он вызывается после onStop().*/
         super.onDetach();
-        mCallback = null;
+        mCallbacks = null;                                                                      //По сути говорим Callbacks, что фрагмента больше нет, и что бы он его не показывал
     }
 
     private void updateSubtitle() {                                                             //запаолняет ActionBar

@@ -31,10 +31,10 @@ public class CrimeListActivity extends SingleFragmentActivity implements CrimeLi
 
     @Override
     public void onCrimeSelected(Crime crime) {
-        if (findViewById(R.id.detail_fragment_container) == null) {                             //если используется планшетный интерфейс — поместить CrimeFragment в detail_fragment_container.
+        if (findViewById(R.id.detail_fragment_container) == null) {                             //если используется планшетный интерфейс — поместить CrimeFragment в detail_fragment_container. Создаёт фрагмент с подробной информацией и выводит его на экран
             Intent intent = CrimePagerActivity.newInstanceCPA(this, crime.getId());
             startActivity(intent);
-        } else {
+        } else {                                                                                //Переключение между фрагментами
             Fragment newDetail = CrimeFragment.newInstanceCF(crime.getId());
 
             getSupportFragmentManager().beginTransaction()
