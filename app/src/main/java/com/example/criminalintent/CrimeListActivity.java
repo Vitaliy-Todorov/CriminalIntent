@@ -10,6 +10,8 @@ import android.util.Log;
 import androidx.annotation.LayoutRes;
 import androidx.fragment.app.Fragment;
 
+import java.util.zip.Inflater;
+
 public class CrimeListActivity extends SingleFragmentActivity implements CrimeListFragment.Callbacks {
 
     private static final String TEG = "myLogs";
@@ -29,7 +31,16 @@ public class CrimeListActivity extends SingleFragmentActivity implements CrimeLi
 
     @Override
     public void onCrimeSelected(Crime crime) {
+        if (findViewById(R.id.detail_fragment_container) == null) {                             //если используется планшетный интерфейс — поместить CrimeFragment в detail_fragment_container.
+            Intent intent = CrimePagerActivity.newInstanceCPA(this, crime.getId());
+            startActivity(intent);
+        } else {
+            Fragment newDetail = CrimeFragment.newInstanceCF(crime.getId());
 
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.detail_fragment_container, newDetail)
+                    .commit();
+        }
     }
 
     @Override

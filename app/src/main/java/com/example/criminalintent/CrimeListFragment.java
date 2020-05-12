@@ -2,6 +2,7 @@
 
 package com.example.criminalintent;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.security.auth.callback.Callback;
-
 public class CrimeListFragment extends Fragment {
 
     private static final String TEG = "myLogs";
@@ -44,10 +43,16 @@ public class CrimeListFragment extends Fragment {
 
     private boolean mSubtitleVisible;
     private int mClickPosition = -1;
-    private Callback mCallback;
+    private Callbacks mCallback;
 
     public  interface Callbacks {                                                               //Создаём интерфейс
         void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallback = (Callbacks) context;
     }
 
     @Override
@@ -108,8 +113,9 @@ public class CrimeListFragment extends Fragment {
         public void onClick(View view){
 //          Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();          //Активирует всплывающее окно Toast.makeText(куда помещаем, текст сообщения, время в течении которого будет отображение сообщения)
             mClickPosition = this.getAdapterPosition();
-            Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность CrimePagerActivity, передаёт Id преступления.
-            startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
+            //Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), mCrime.getId());              //Создаёт объект Intent для передачи информации в активность CrimePagerActivity, передаёт Id преступления.
+            //startActivity(intent);                                                              //Отправляет запрос в ОС, и ОС создаёт новую активность.
+            mCallback.onCrimeSelected(mCrime);                                                  //Думаю мы меняем
         }
 
         public void bind(Crime crime){                                                          //Добовляет view в представление
@@ -195,8 +201,10 @@ public class CrimeListFragment extends Fragment {
             case R.id.new_crime:
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), crime.getId());
-                startActivity(intent);
+                //Intent intent = CrimePagerActivity.newInstanceCPA(getActivity(), crime.getId());
+                //startActivity(intent);
+                updateUI();                                                                     //Эта и следуящая строчка вместо предыдущих, для случая с планшетным режимом
+                mCallback.onCrimeSelected(crime);                                               //Передаёт в активность CrimeListActivity, какой crime нужно передать во фрагмент CrimeFragment
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
