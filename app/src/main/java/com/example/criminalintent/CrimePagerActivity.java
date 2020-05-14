@@ -17,7 +17,7 @@ import android.view.View.OnClickListener;
 import java.util.List;
 import java.util.UUID;
 
-public class CrimePagerActivity extends AppCompatActivity implements OnClickListener {
+public class CrimePagerActivity extends AppCompatActivity implements OnClickListener, CrimeFragment.Callbacks {
 
     private static final String TEG = "myLogs";
     private static final String EXTRA_CRIME_ID = "com.example.criminalintent.crime_id";
@@ -79,6 +79,9 @@ public class CrimePagerActivity extends AppCompatActivity implements OnClickList
                 break;
         }
     }
+
+    @Override
+    public void onCrimeUpdated(Crime crime) {}
 
     public static Intent newInstanceCPA(Context packageContext, UUID crimeId){
         Intent intent = new Intent(packageContext, CrimePagerActivity.class);

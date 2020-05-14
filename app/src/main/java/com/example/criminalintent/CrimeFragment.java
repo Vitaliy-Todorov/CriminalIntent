@@ -4,6 +4,7 @@ package com.example.criminalintent;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -75,6 +76,17 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
     private DateFormat mDfDate = new SimpleDateFormat("EEEE, MMM dd, yyyy");
     private DateFormat mDfTime = new SimpleDateFormat("HH:mm");
+    private Callbacks mCallbacks;
+
+    public interface Callbacks {
+        void onCrimeUpdated(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -84,12 +96,6 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeID);
         mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);                          //Cохранение местонахождения файла фотографии
         setHasOptionsMenu(true);
-    }
-    @Override
-    public void onPause() {
-        super.onPause();
-        CrimeLab.get(getActivity())
-                .updateCrime(mCrime);
     }
 
     @Override
@@ -125,6 +131,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 mCrime.setTitle(charSequence.toString());                                       //charSequence.toString() - представляет ввод пользователя. mCrime.setTitle() - смотри метод Crime
+                updateCrime();
             }
 
             @Override
@@ -190,6 +197,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mCrime.setSolved(b);
+                updateCrime();
             }
         });
 
@@ -273,11 +281,13 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         if(requestCode == REQUEST_DATE) {                                                       //показывает от кого прошли данные
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);        //берёт данный пересланные сюда из фрагмента для которого является целевым
             mCrime.setDate(date);
+            updateCrime();
             updateDate();
         }
         if(requestCode == REQUEST_TIME) {                                                       //показывает от кого прошли данные
             Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);        //берёт данный пересланные сюда из фрагмента для которого является целевым
             mCrime.setDate(date);
+            updateCrime();
             updateTime();
         }
 
@@ -341,6 +351,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
                 Intent intent = new Intent(Intent.ACTION_DIAL);
                 intent.setData(number);
 
+                updateCrime();
                 startActivity(intent);
                 //Сдесь вызов по номеру заканчивается
             }finally {
@@ -355,6 +366,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
 
             getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);             //revokeUriPermission - отозвать разрешение и снова перекрыть доступ к файлу (как бы закрывает разрешение полученное с помощью grantUriPermissio)
 
+            updateCrime();
             updatePhotoView();
         }
     }
@@ -379,6 +391,19 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        CrimeLab.get(getActivity())
+                .updateCrime(mCrime);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+
     private String getCrimeReport() {                                                           //Формирует текст отчёта по преступлению для  смс сообщения
         String solvedString = null;
         if(mCrime.isSolved()){
@@ -401,6 +426,11 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         String report = getString(R.string.crime_report, mCrime.getTitle(), solvedString, dateString, suspect);
 
         return report;
+    }
+
+    private void updateCrime() {                                                                //Обновляет список преступлений в планшетном режиме
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
+        mCallbacks.onCrimeUpdated(mCrime);
     }
 
     private void updateDate() {

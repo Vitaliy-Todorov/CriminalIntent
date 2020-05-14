@@ -240,7 +240,7 @@ public class CrimeListFragment extends Fragment {
         activity.getSupportActionBar().setSubtitle(subtitle);                                   //(панель инструментов в библиотеки AppCompat называется «панелью действий») getSupportActionBar - выдаёт ActionBar. ActionBar - Основная панель инструментов в действий, которая может отображать заголовок действия, возможности навигации на уровне приложения и другие интерактивные элементы. setSubtitle - запаолняет ActionBar
     }
 
-    private void updateUI(){                                                                    //Обновляет элементы CrimeListFragment
+    public void updateUI(){                                                                    //Обновляет элементы CrimeListFragment
         CrimeLab crimeLab = CrimeLab.get(getActivity());                                        //Эта и следующая строчка служать для создания списка приступлений crimes
         mCrimes = crimeLab.getCrimes();
 

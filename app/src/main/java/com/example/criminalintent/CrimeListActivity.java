@@ -12,7 +12,8 @@ import androidx.fragment.app.Fragment;
 
 import java.util.zip.Inflater;
 
-public class CrimeListActivity extends SingleFragmentActivity implements CrimeListFragment.Callbacks {
+public class CrimeListActivity extends SingleFragmentActivity
+        implements CrimeListFragment.Callbacks, CrimeFragment.Callbacks {
 
     private static final String TEG = "myLogs";
     private static final String EXTRA_CLA_INTEGER = "com.example.criminalintent.CLF.int";
@@ -41,6 +42,14 @@ public class CrimeListActivity extends SingleFragmentActivity implements CrimeLi
                     .replace(R.id.detail_fragment_container, newDetail)
                     .commit();
         }
+    }
+
+    @Override
+    public void onCrimeUpdated(Crime crime) {                                                   //При вызове этого метода в CrimeFragment, в CrimeListFragment вызывается метод updateUI(),и обновляет список приступлений. Но что он работал, его нужно поместить в CrimePagerActivity (это нужно, что бы и режиме телевона эта штука работала)
+        CrimeListFragment listFragment = (CrimeListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_container);
+
+        listFragment.updateUI();
     }
 
     @Override
