@@ -19,6 +19,7 @@ public class CrimeListActivity extends SingleFragmentActivity
     private static final String EXTRA_CLA_INTEGER = "com.example.criminalintent.CLF.int";
 
     private  CrimeListFragment mFragment = new CrimeListFragment();
+    private Fragment newDetail;
 
     @Override
     protected Fragment createFragment(){                                                        //Создаётся фрагмент. Функция createFragment(); переопределяется в классе создающем фрагмент. Изначально определена в классе SingleFragmentActivity. На выхлде выдаёт объект класса Fragment
@@ -32,11 +33,16 @@ public class CrimeListActivity extends SingleFragmentActivity
 
     @Override
     public void onCrimeSelected(Crime crime) {
-        if (findViewById(R.id.detail_fragment_container) == null) {                             //если используется планшетный интерфейс — поместить CrimeFragment в detail_fragment_container. Создаёт фрагмент с подробной информацией и выводит его на экран
+        if (crime == null) {
+            Log.d(TEG, "onCrimeSelected - " + null);
+            getSupportFragmentManager().beginTransaction()
+                    .detach(newDetail)
+                    .commit();
+        }else if (findViewById(R.id.detail_fragment_container) == null) {                             //если используется планшетный интерфейс — поместить CrimeFragment в detail_fragment_container. Создаёт фрагмент с подробной информацией и выводит его на экран
             Intent intent = CrimePagerActivity.newInstanceCPA(this, crime.getId());
             startActivity(intent);
         } else {                                                                                //Переключение между фрагментами
-            Fragment newDetail = CrimeFragment.newInstanceCF(crime.getId());
+            newDetail = CrimeFragment.newInstanceCF(crime.getId());
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_fragment_container, newDetail)

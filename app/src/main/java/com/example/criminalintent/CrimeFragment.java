@@ -94,7 +94,7 @@ public class CrimeFragment extends Fragment implements View.OnClickListener{
         //UUID crimeID = (UUID) getActivity().getIntent().getSerializableExtra(MainActivity.EXTRA_CRIME_ID);          //Это всё служет для передачи данных между активностями, в отличик от реализованной передаче межуд фрагментами.
         UUID crimeID = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeID);
-        mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);                          //Cохранение местонахождения файла фотографии
+        mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);                          //Сохранение местонахождения файла фотографии
         setHasOptionsMenu(true);
     }
 

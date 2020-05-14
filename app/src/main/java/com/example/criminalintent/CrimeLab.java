@@ -51,6 +51,13 @@ public class CrimeLab {
                 базы данных в CrimeOpenHelper выше, то вызывается метод onUpgrade(SQLiteDatabase, int, int).*/
     }
 
+    public static CrimeLab get(Context context){
+        if (sCrimeLab == null){
+            sCrimeLab = new CrimeLab(context);
+        }
+        return sCrimeLab;
+    }
+
     public void addCrime(Crime crime) {
         ContentValues values = getContentValues(crime);
         mDatabase.insert(CrimeTable.NAME, null, values);                        //insert(Имя таблици, XXX, Значение которое мы передаём в таблицу) - добавление записи в базу данных. XXX - (может принимать значение uuid) поволяет обойти ошибку при передачи пустого объекта, и записывает вместо него null. Подробнее стр 292
@@ -61,13 +68,6 @@ public class CrimeLab {
                 CrimeTable.NAME,
                 CrimeTable.Cols.UUID + " = ?",
                 new String[] { id.toString() });
-    }
-
-    public static CrimeLab get(Context context){
-        if (sCrimeLab == null){
-            sCrimeLab = new CrimeLab(context);
-        }
-        return sCrimeLab;
     }
 
     public List<Crime> getCrimes(){
