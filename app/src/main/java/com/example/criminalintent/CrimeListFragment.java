@@ -101,10 +101,9 @@ public class CrimeListFragment extends Fragment {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
                 int fromPos = viewHolder.getAdapterPosition();
-                Log.d(TEG, "mCrimes.get(fromPos).getTitle() - " + mCrimes.get(fromPos).getTitle());
                 CrimeLab.get(getActivity()).deleteCrime(mCrimes.get(fromPos).getId());
-                mCallbacks.onCrimeSelected(null);
                 updateUI();
+                mCallbacks.onCrimeSelected(null);
             }
         }).attachToRecyclerView(mCrimeRecyclerView);
 

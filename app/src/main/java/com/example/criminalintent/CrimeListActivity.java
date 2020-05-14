@@ -33,11 +33,12 @@ public class CrimeListActivity extends SingleFragmentActivity
 
     @Override
     public void onCrimeSelected(Crime crime) {
-        if (crime == null) {
-            Log.d(TEG, "onCrimeSelected - " + null);
+        if (crime == null && newDetail != null) {
             getSupportFragmentManager().beginTransaction()
                     .detach(newDetail)
                     .commit();
+        }else if (crime == null) {
+            return;
         }else if (findViewById(R.id.detail_fragment_container) == null) {                             //если используется планшетный интерфейс — поместить CrimeFragment в detail_fragment_container. Создаёт фрагмент с подробной информацией и выводит его на экран
             Intent intent = CrimePagerActivity.newInstanceCPA(this, crime.getId());
             startActivity(intent);
