@@ -91,6 +91,7 @@ public class CrimeListFragment extends Fragment {
 
         updateUI();
 
+        //Обработка свапа RecyclerView
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -143,6 +144,7 @@ public class CrimeListFragment extends Fragment {
 
             mTitleTextView.setText(mCrime.getTitle());
             mDateTextView.setText(df.format(mCrime.getDate()));
+            //mDateTextView.setText(DateFormat.getDateInstance().format(mCrime.getDate()));     //Дата в формате текущего языкового стандарта
             mSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.GONE);        //VISIBLE - ВИДИМЫЙ. GONE - УШЕДШИЙ
         }
     }
